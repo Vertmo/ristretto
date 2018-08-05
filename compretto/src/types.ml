@@ -8,8 +8,7 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-exception NotTheSameTypeError of string
-exception UnexpectedTypeError of string
+(** Types allowed in the language *)
 
 type types = Int | Float | String | Bool
 

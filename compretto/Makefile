@@ -8,8 +8,7 @@
 ##                    GNU General Public License v3.0                         ##
 ################################################################################
 
-SRC = src/,src/frontend,src/frontend/_parselexgen,src/frontend/ast
-
+SRC = src/,src/frontend,src/frontend/_parselexgen,src/frontend/ast,src/middleend/analysis,src/middleend/kast
 
 all: compile
 

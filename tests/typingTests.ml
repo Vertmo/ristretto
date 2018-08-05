@@ -13,6 +13,7 @@ open LexAndParse
 open Statement
 open Expression
 open Types
+open TypeChecking
 
 let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
