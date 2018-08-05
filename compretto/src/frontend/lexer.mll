@@ -25,6 +25,7 @@ rule token = parse
   | "-"?['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
   | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
 
+  | "true" { BOOL(true) } | "false" { BOOL(false) }
   | "let" { LET }
   | "=" { EQUAL }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }

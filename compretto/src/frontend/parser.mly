@@ -16,6 +16,7 @@
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
+%token <bool> BOOL
 %token <string> IDENT
 %token LET
 %token EQUAL
@@ -44,5 +45,6 @@ expr:
   | INT { Expression.Int $1 }
   | FLOAT { Expression.Float $1 }
   | STRING { Expression.String $1 }
+  | BOOL { Expression.Bool $1 }
   | IDENT { Expression.VarCall $1 }
 ;
