@@ -9,7 +9,7 @@
 ################################################################################
 
 compile:
-	ocamlbuild tests.native -package oUnit
+	ocamlbuild -Is compretto/src,compretto/src/frontend,compretto/src/frontend/ast tests.native -package oUnit
 
 tests: compile
 	./tests.native -no-output-file -no-cache-filename

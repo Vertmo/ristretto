@@ -1,7 +1,7 @@
 1;
 0;
 42;
-1234586539873; // ... or longer ...
+4611686018427387903; // ... or longer ...
 /*
 Also, long comments
 are possible

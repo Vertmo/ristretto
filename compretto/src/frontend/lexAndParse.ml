@@ -10,6 +10,8 @@
 
 open Lexing
 
+(** Lexing and parsing module *)
+
 exception LexError of string
 exception ParseError of string
 
@@ -20,3 +22,12 @@ let error msg start finish  =
 let lex_error lexbuf = raise (LexError (error (lexeme lexbuf) (lexeme_start_p lexbuf) (lexeme_start_p lexbuf)))
 
 let parse_error lexbuf = raise (ParseError (error "Syntax error" (lexeme_start_p lexbuf) (lexeme_start_p lexbuf)))
+
+
+(** Lexes and parses the input file, and returns the AST **)
+let lexAndParse ic =
+  let lexbuf = Lexing.from_channel ic in
+  try
+    Parser.program Lexer.token lexbuf
+  with Failure _ -> lex_error lexbuf
+     | Parsing.Parse_error -> parse_error lexbuf

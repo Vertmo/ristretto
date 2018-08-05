@@ -10,20 +10,12 @@
 
 open Exceptions
 
-(* Main module, containing the main function *)
-
-(** Lexes and parses the input file, and returns the AST **)
-let lexAndParse ic =
-  let lexbuf = Lexing.from_channel ic in
-  try
-    Parser.program Lexer.token lexbuf
-  with Failure _ -> lex_error lexbuf
-     | Parsing.Parse_error -> parse_error lexbuf
+(** Main module, containing the main function *)
 
 let main filename =
   let filename = Sys.argv.(1) in
   let ic = open_in filename in
-  let ast = lexAndParse ic in
+  let ast = LexAndParse.lexAndParse ic in
   Statement.print_program_with_types ast (* TODO *)
 
 let _ =

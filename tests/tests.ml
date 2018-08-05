@@ -11,3 +11,10 @@
 open OUnit2
 
 (* Main test file, calling all the test suites *)
+
+let suite =
+  "tests">:::[
+    LexAndParseTests.suite;
+  ]
+
+let () = run_test_tt_main suite
