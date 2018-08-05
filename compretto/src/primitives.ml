@@ -8,13 +8,36 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-exception NotTheSameTypeError of string
-exception UnexpectedTypeError of string
+open Types
 
-type types = Int | Float | String | Bool
+type output = Same | Different of types
 
-let to_string t = match t with
-  | Int -> "int"
-  | Float -> "float"
-  | String -> "string"
-  | Bool -> "bool"
+type binOp = {
+  symbol: string;
+  inputTypes: types list;
+  outputType: output;
+}
+
+let add = {
+  symbol = "+";
+  inputTypes = [Int; Float];
+  outputType = Same;
+}
+
+let sub = {
+  symbol = "-";
+  inputTypes = [Int; Float];
+  outputType = Same;
+}
+
+let times = {
+  symbol = "*";
+  inputTypes = [Int; Float];
+  outputType = Same;
+}
+
+let div = {
+  symbol = "/";
+  inputTypes = [Int; Float];
+  outputType = Same;
+}

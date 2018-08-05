@@ -8,10 +8,12 @@
 ##                    GNU General Public License v3.0                         ##
 ################################################################################
 
+SRC = src/,src/frontend,src/frontend/_parselexgen,src/frontend/ast
+
+
 all: compile
 
 compile:
-	ocamlbuild compretto.native -Is src/,src/frontend,src/frontend/_parselexgen,src/frontend/ast
-
+	ocamlbuild compretto.native -Is $(SRC)
 clean:
 	ocamlbuild -clean

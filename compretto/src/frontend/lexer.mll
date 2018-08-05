@@ -28,6 +28,7 @@ rule token = parse
   | "true" { BOOL(true) } | "false" { BOOL(false) }
   | "let" { LET }
   | "=" { EQUAL }
+  | "+" { ADD } | "-" { SUB } | "*" { TIMES } | "/" { DIV }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
 
 and comment = parse

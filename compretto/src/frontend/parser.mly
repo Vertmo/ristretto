@@ -20,6 +20,7 @@
 %token <string> IDENT
 %token LET
 %token EQUAL
+%token ADD SUB TIMES DIV
 %token EOF SEMICOL
 %start program
 %type <Statement.stmt> statement
@@ -47,4 +48,9 @@ expr:
   | STRING { Expression.String $1 }
   | BOOL { Expression.Bool $1 }
   | IDENT { Expression.VarCall $1 }
+
+  | expr ADD expr { Expression.BinOp (Primitives.add, $1, $3) }
+  | expr SUB expr { Expression.BinOp (Primitives.sub, $1, $3) }
+  | expr TIMES expr { Expression.BinOp (Primitives.times, $1, $3) }
+  | expr DIV expr { Expression.BinOp (Primitives.div, $1, $3) }
 ;

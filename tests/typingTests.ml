@@ -39,10 +39,16 @@ let letTest ctxt =
   let (VoidExpr e) = (List.nth ast 3) in
   assert_equal String (check_type e [("hello", String)])
 
+let binOpTest ctxt =
+  let ast = lexAndParse (open_in "samples/binOp.ris") in
+  let (VoidExpr e) = (List.nth ast 3) in
+  assert_equal Float (check_type e [])
+
 let suite = "typing">:::[
   "int">::intTest;
   "float">::floatTest;
   "bool">::boolTest;
   "string">::stringTest;
   "let">::letTest;
+  "binOp">::binOpTest;
 ]

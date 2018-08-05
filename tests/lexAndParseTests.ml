@@ -38,10 +38,15 @@ let letTest ctxt =
   assert_equal (Let ("one",(Int 1))) (List.nth ast 0);
   assert_equal (VoidExpr (VarCall "hello")) (List.nth ast 3)
 
+let binOpTest ctxt =
+  let ast = lexAndParse (open_in "samples/binOp.ris") in
+  assert_equal (VoidExpr (BinOp (Primitives.add, (Int 1), (Int 2)))) (List.nth ast 0)
+
 let suite = "lexAndParse">:::[
   "int">::intTest;
   "float">::floatTest;
   "bool">::boolTest;
   "string">::stringTest;
   "let">::letTest;
+  "binOp">::binOpTest;
 ]

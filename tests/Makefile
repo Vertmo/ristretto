@@ -8,8 +8,10 @@
 ##                    GNU General Public License v3.0                         ##
 ################################################################################
 
+SRC = compretto/src,compretto/src/frontend,compretto/src/frontend/ast
+
 compile:
-	ocamlbuild -cflags -w,-8 -Is compretto/src,compretto/src/frontend,compretto/src/frontend/ast tests.native -package oUnit
+	ocamlbuild -cflags -w,-8 -Is $(SRC) -package oUnit tests.native
 
 tests: compile
 	./tests.native -no-output-file -no-cache-filename
