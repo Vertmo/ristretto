@@ -8,20 +8,26 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-(* Main module, containing the main function *)
+{
+open Parser
+exception Eof
+}
 
-(** Lexes and parses the input file, and returns the AST **)
-let lexAndParse ic =
-  let lexbuf = Lexing.from_channel ic in
-  Parser.program Lexer.token lexbuf
+rule token = parse
+  | [' ' '\t' '\n'] { token lexbuf }
+  | ";" { SEMICOL }
+  | "//"[^ '\n']* { token lexbuf } (* Single line comments *)
+  | "/*" { comment lexbuf } (* Start of a multi-line comment *)
+  | eof { EOF }
 
-let main filename =
-  let filename = Sys.argv.(1) in
-  let ic = open_in filename in
-  let ast = lexAndParse ic in
-  Statement.print_program ast (* TODO *)
+  | "-"?['0'-'9']+ as num { INT(int_of_string num) }
+  | "-"?['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
+  | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
 
-let _ =
-  if Array.length Sys.argv <> 2
-  then print_endline "Usage : compretto <filename>"
-  else main Sys.argv.(1)
+  | "let" { LET }
+  | "=" { EQUAL }
+  | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
+
+and comment = parse
+  | "*/" { token lexbuf } (* End of a multi-line comment *)
+  | _ { comment lexbuf }

@@ -1,1 +1,3 @@
-""; "Hello World";
+""; // Strings can be empty
+"Hello World"; // Or not
+"Hello There !"

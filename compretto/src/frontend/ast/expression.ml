@@ -8,20 +8,13 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-(* Main module, containing the main function *)
+type expr = Int of int (** Primitive integer *)
+          | Float of float (** Primitive floating number *)
+          | String of string (** Primitive string *)
+          | VarCall of string (** Getting value of a var *)
 
-(** Lexes and parses the input file, and returns the AST **)
-let lexAndParse ic =
-  let lexbuf = Lexing.from_channel ic in
-  Parser.program Lexer.token lexbuf
-
-let main filename =
-  let filename = Sys.argv.(1) in
-  let ic = open_in filename in
-  let ast = lexAndParse ic in
-  Statement.print_program ast (* TODO *)
-
-let _ =
-  if Array.length Sys.argv <> 2
-  then print_endline "Usage : compretto <filename>"
-  else main Sys.argv.(1)
+let print_expression expr = match expr with
+  | Int i -> print_int i
+  | Float f -> print_float f
+  | String s -> Printf.printf "\"%s\"" s
+  | VarCall ident -> print_string ident

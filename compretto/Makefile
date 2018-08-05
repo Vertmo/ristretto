@@ -8,8 +8,16 @@
 ##                    GNU General Public License v3.0                         ##
 ################################################################################
 
-compile:
-	ocamlbuild compretto.native -I src/
+all: compile
+
+parseLex: src/frontend/lexer.mll src/frontend/parser.mly
+	mkdir -p src/frontend/_parselexgen
+	ocamllex -o src/frontend/_parselexgen/lexer.ml src/frontend/lexer.mll
+	ocamlyacc -b src/frontend/_parselexgen/parser src/frontend/parser.mly
+
+compile: parseLex
+	ocamlbuild compretto.native -Is src/frontend/ast,src/frontend/_parselexgen,src/
 
 clean:
+	rm -r src/frontend/_parselexgen
 	ocamlbuild -clean

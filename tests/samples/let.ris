@@ -1,6 +1,7 @@
 let one = 1;
-let zero = 0;
 
 let floating = 17.4;
 
 let hello = "Hello World";
+
+hello // You can return the variable

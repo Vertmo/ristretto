@@ -8,20 +8,19 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-(* Main module, containing the main function *)
+open Printf
+open Expression
 
-(** Lexes and parses the input file, and returns the AST **)
-let lexAndParse ic =
-  let lexbuf = Lexing.from_channel ic in
-  Parser.program Lexer.token lexbuf
+type stmt = VoidExpr of expr (** Expression in the wind *)
+          | Let of string * expr (** Declaring a var and assigning it *)
 
-let main filename =
-  let filename = Sys.argv.(1) in
-  let ic = open_in filename in
-  let ast = lexAndParse ic in
-  Statement.print_program ast (* TODO *)
+type program = stmt list
 
-let _ =
-  if Array.length Sys.argv <> 2
-  then print_endline "Usage : compretto <filename>"
-  else main Sys.argv.(1)
+let rec print_statement stmt = match stmt with
+  | VoidExpr e -> print_expression e
+  | Let (s, e) -> printf "let %s = " s; print_expression e
+
+and print_program ast = match List.rev ast with
+  | [] -> ()
+  | h::q -> List.iter (fun s -> print_statement s; print_endline ";") (List.rev q);
+    print_statement h; print_newline ()
