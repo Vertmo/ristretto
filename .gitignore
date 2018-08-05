@@ -21,6 +21,3 @@ setup.log
 
 # Merlin configuring file for Vim and Emacs
 .merlin
-
-# my generated files
-_parselexgen

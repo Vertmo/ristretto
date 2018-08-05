@@ -15,6 +15,7 @@ open OUnit2
 let suite =
   "tests">:::[
     LexAndParseTests.suite;
+    TypingTests.suite;
   ]
 
 let () = run_test_tt_main suite

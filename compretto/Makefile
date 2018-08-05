@@ -10,14 +10,8 @@
 
 all: compile
 
-parseLex: src/frontend/lexer.mll src/frontend/parser.mly
-	mkdir -p src/frontend/_parselexgen
-	ocamllex -o src/frontend/_parselexgen/lexer.ml src/frontend/lexer.mll
-	ocamlyacc -b src/frontend/_parselexgen/parser src/frontend/parser.mly
-
-compile: parseLex
+compile:
 	ocamlbuild compretto.native -Is src/,src/frontend,src/frontend/_parselexgen,src/frontend/ast
 
 clean:
-	rm -r src/frontend/_parselexgen
 	ocamlbuild -clean

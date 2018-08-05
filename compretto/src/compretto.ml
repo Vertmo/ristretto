@@ -8,8 +8,6 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-open Exceptions
-
 (** Main module, containing the main function *)
 
 let main filename =

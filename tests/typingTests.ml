@@ -12,33 +12,34 @@ open OUnit2
 open LexAndParse
 open Statement
 open Expression
+open Types
 
 let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
-  assert_equal (VoidExpr (Int 1)) (List.nth ast 0);
-  assert_equal (VoidExpr (Int (max_int))) (List.nth ast 3);
-  assert_equal (VoidExpr (Int (-34))) (List.nth ast 4)
+  let (VoidExpr e) = (List.nth ast 0) in
+  assert_equal Int (check_type e [])
 
 let floatTest ctxt =
   let ast = lexAndParse (open_in "samples/float.ris") in
-  assert_equal (VoidExpr (Float 2.25)) (List.nth ast 0);
-  assert_equal (VoidExpr (Float 42.1865)) (List.nth ast 3)
+  let (VoidExpr e) = (List.nth ast 0) in
+  assert_equal Float (check_type e [])
 
 let boolTest ctxt =
   let ast = lexAndParse (open_in "samples/bool.ris") in
-  assert_equal (VoidExpr (Bool true)) (List.nth ast 0)
+  let (VoidExpr e) = (List.nth ast 0) in
+  assert_equal Bool (check_type e [])
 
 let stringTest ctxt =
   let ast = lexAndParse (open_in "samples/string.ris") in
-  assert_equal (VoidExpr (String "")) (List.nth ast 0);
-  assert_equal (VoidExpr (String "Hello There !")) (List.nth ast 2)
+  let (VoidExpr e) = (List.nth ast 0) in
+  assert_equal String (check_type e [])
 
 let letTest ctxt =
   let ast = lexAndParse (open_in "samples/let.ris") in
-  assert_equal (Let ("one",(Int 1))) (List.nth ast 0);
-  assert_equal (VoidExpr (VarCall "hello")) (List.nth ast 3)
+  let (VoidExpr e) = (List.nth ast 3) in
+  assert_equal String (check_type e [("hello", String)])
 
-let suite = "lexAndParse">:::[
+let suite = "typing">:::[
   "int">::intTest;
   "float">::floatTest;
   "bool">::boolTest;
