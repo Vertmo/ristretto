@@ -16,7 +16,7 @@ parseLex: src/frontend/lexer.mll src/frontend/parser.mly
 	ocamlyacc -b src/frontend/_parselexgen/parser src/frontend/parser.mly
 
 compile: parseLex
-	ocamlbuild compretto.native -Is src/frontend/ast,src/frontend/_parselexgen,src/
+	ocamlbuild compretto.native -Is src/,src/frontend/_parselexgen,src/frontend/ast
 
 clean:
 	rm -r src/frontend/_parselexgen

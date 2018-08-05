@@ -14,7 +14,8 @@ exception Eof
 }
 
 rule token = parse
-  | [' ' '\t' '\n'] { token lexbuf }
+  | [' ' '\t'] { token lexbuf }
+  | "\n" { Lexing.new_line lexbuf; token lexbuf }
   | ";" { SEMICOL }
   | "//"[^ '\n']* { token lexbuf } (* Single line comments *)
   | "/*" { comment lexbuf } (* Start of a multi-line comment *)
@@ -30,4 +31,5 @@ rule token = parse
 
 and comment = parse
   | "*/" { token lexbuf } (* End of a multi-line comment *)
+  | "\n" { Lexing.new_line lexbuf; comment lexbuf }
   | _ { comment lexbuf }

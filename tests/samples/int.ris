@@ -2,5 +2,9 @@
 0;
 42;
 1234586539873; // ... or longer ...
+/*
+Also, long comments
+are possible
+*/
 -34; // ... or even negative
 52
