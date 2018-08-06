@@ -44,6 +44,14 @@ let binOpTest ctxt =
   assert_equal (VoidExpr (BinOp (Primitives.add, (Int 5), (BinOp (Primitives.div, (Int 15), (Int 5)))))) (List.nth ast 4);
   assert_equal (VoidExpr (BinOp (Primitives.div, (BinOp (Primitives.add, (Int 5), (Int 15))), (Int 5)))) (List.nth ast 5)
 
+let boolExprTest ctxt =
+  let ast = lexAndParse (open_in "samples/boolExpr.ris") in
+  assert_equal (VoidExpr (BinOp (Primitives.less, (Int 1), (Int 3)))) (List.nth ast 0);
+  assert_equal (VoidExpr (BinOp (Primitives.eqeq,
+                                 (Bool true),
+                                 (BinOp (Primitives.less, (BinOp (Primitives.add, (Int 4), (Int 5))), (Int 2)))))) (List.nth ast 3);
+  assert_equal (VoidExpr (BinOp (Primitives.boolOr, (Bool true), (Bool false)))) (List.nth ast 4)
+
 let suite = "lexAndParse">:::[
   "int">::intTest;
   "float">::floatTest;
@@ -51,4 +59,5 @@ let suite = "lexAndParse">:::[
   "string">::stringTest;
   "let">::letTest;
   "binOp">::binOpTest;
+  "boolExpr">::boolExprTest;
 ]

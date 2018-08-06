@@ -29,10 +29,12 @@ rule token = parse
   | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
   | "true" { BOOL(true) } | "false" { BOOL(false) }
 
+  | "+" { ADD } | "-" { SUB } | "*" { TIMES } | "/" { DIV }
+  | "==" { EQEQ } | "!=" { NEQ } | "<" { LESS } | "<=" { LESSEQ } | ">" { GREATER } | ">=" { GREATEREQ }
+  | "&&" { AND } | "||" { OR } | "not" { NOT }
+
   | "let" { LET } | "=" { EQUAL }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
-
-  | "+" { ADD } | "-" { SUB } | "*" { TIMES } | "/" { DIV }
 
 and comment = parse
   | "*/" { token lexbuf } (* End of a multi-line comment *)

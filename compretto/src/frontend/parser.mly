@@ -21,10 +21,16 @@
 %token <string> IDENT
 %token LET EQUAL
 %token LPAREN RPAREN
-%token ADD SUB TIMES DIV
 
+%token ADD SUB TIMES DIV
+%token EQEQ NEQ LESS LESSEQ GREATER GREATEREQ
+%token AND OR NOT
+
+%left AND OR
+%left EQEQ NEQ LESS LESSEQ GREATER GREATEREQ
 %left ADD SUB
 %left TIMES DIV
+%right NOT
 
 %start program
 %type <Statement.stmt> statement
@@ -59,4 +65,16 @@ expr:
   | expr SUB expr { Expression.BinOp (Primitives.sub, $1, $3) }
   | expr TIMES expr { Expression.BinOp (Primitives.times, $1, $3) }
   | expr DIV expr { Expression.BinOp (Primitives.div, $1, $3) }
+  | SUB expr { Expression.UnOp (Primitives.neg, $2) }
+
+  | expr EQEQ expr { Expression.BinOp (Primitives.eqeq, $1, $3) }
+  | expr NEQ expr { Expression.BinOp (Primitives.neq, $1, $3) }
+  | expr LESS expr { Expression.BinOp (Primitives.less, $1, $3) }
+  | expr LESSEQ expr { Expression.BinOp (Primitives.lessEq, $1, $3) }
+  | expr GREATER expr { Expression.BinOp (Primitives.greater, $1, $3) }
+  | expr GREATEREQ expr { Expression.BinOp (Primitives.greaterEq, $1, $3) }
+
+  | expr AND expr { Expression.BinOp (Primitives.boolAnd, $1, $3) }
+  | expr OR expr { Expression.BinOp (Primitives.boolOr, $1, $3) }
+  | NOT expr { Expression.UnOp (Primitives.boolNot, $2) }
 ;

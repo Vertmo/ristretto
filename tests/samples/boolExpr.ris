@@ -1,0 +1,6 @@
+1 < 3;
+2 + 4 >= 11 / 2;
+"Hello World" != "Hello There";
+true == (4 + 5 < 2);
+true || false;
+true || not (4 + 5 < 2) && (4 + 5 > 2)

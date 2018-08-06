@@ -45,6 +45,11 @@ let binOpTest ctxt =
   let (VoidExpr e) = (List.nth ast 3) in
   assert_equal Float (check_type e [])
 
+let boolExprTest ctxt =
+  let ast = lexAndParse (open_in "samples/boolExpr.ris") in
+  let (VoidExpr e) = (List.nth ast 2) in assert_equal Bool (check_type e []);
+  let (VoidExpr e) = (List.nth ast 5) in assert_equal Bool (check_type e [])
+
 let suite = "typing">:::[
   "int">::intTest;
   "float">::floatTest;
@@ -52,4 +57,5 @@ let suite = "typing">:::[
   "string">::stringTest;
   "let">::letTest;
   "binOp">::binOpTest;
+  "boolExpr">::boolExprTest;
 ]

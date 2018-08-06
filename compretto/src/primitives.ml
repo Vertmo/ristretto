@@ -12,7 +12,7 @@ open Types
 
 type output = Same | Different of types
 
-type binOp = {
+type op = {
   symbol: string;
   inputTypes: types list;
   outputType: output;
@@ -20,7 +20,7 @@ type binOp = {
 
 let add = {
   symbol = "+";
-  inputTypes = [Int; Float];
+  inputTypes = [Int; Float; String];
   outputType = Same;
 }
 
@@ -39,5 +39,65 @@ let times = {
 let div = {
   symbol = "/";
   inputTypes = [Int; Float];
+  outputType = Same;
+}
+
+let neg = {
+  symbol = "-";
+  inputTypes = [Int; Float];
+  outputType = Same;
+}
+
+let eqeq = {
+  symbol = "==";
+  inputTypes = [Int; Float; String; Bool];
+  outputType = Different Bool;
+}
+
+let neq = {
+  symbol = "!=";
+  inputTypes = [Int; Float; String; Bool];
+  outputType = Different Bool;
+}
+
+let less = {
+  symbol = "<";
+  inputTypes = [Int; Float];
+  outputType = Different Bool;
+}
+
+let lessEq = {
+  symbol = "<=";
+  inputTypes = [Int; Float];
+  outputType = Different Bool;
+}
+
+let greater = {
+  symbol = ">";
+  inputTypes = [Int; Float];
+  outputType = Different Bool;
+}
+
+let greaterEq = {
+  symbol = ">=";
+  inputTypes = [Int; Float];
+  outputType = Different Bool;
+}
+
+let boolAnd = {
+  symbol = "&&";
+  inputTypes = [Bool];
+  outputType = Same;
+}
+
+let boolOr = {
+  symbol = "||";
+  inputTypes = [Bool];
+  outputType = Same;
+}
+
+let boolNot = {
+  symbol = "not";
+  inputTypes = [Bool];
   outputType = Same;
 }
