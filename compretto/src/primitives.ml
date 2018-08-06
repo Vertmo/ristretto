@@ -12,92 +12,36 @@ open Types
 
 type output = Same | Different of types
 
-type op = {
-  symbol: string;
-  inputTypes: types list;
-  outputType: output;
-}
+type binaryOp = Add | Sub | Mult | Div | Eqeq | Neq | Less | LessEq | Greater | GreaterEq | And | Or
 
-let add = {
-  symbol = "+";
-  inputTypes = [Int; Float];
-  outputType = Same;
-}
+type unaryOp = Neg | Not
 
-let sub = {
-  symbol = "-";
-  inputTypes = [Int; Float];
-  outputType = Same;
-}
+let unSymbol u = match u with
+  | Neg -> "-" | Not -> "not"
 
-let times = {
-  symbol = "*";
-  inputTypes = [Int; Float];
-  outputType = Same;
-}
+let binSymbol b = match b with
+  | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
+  | Eqeq -> "==" | Neq -> "!=" | Less -> "<" | LessEq -> "<=" | Greater -> ">" | GreaterEq -> ">="
+  | And -> "&&" | Or -> "&&"
 
-let div = {
-  symbol = "/";
-  inputTypes = [Int; Float];
-  outputType = Same;
-}
+let unInputTypes u = match u with
+  | Neg -> [Int; Float] | Not -> [Bool]
 
-let neg = {
-  symbol = "-";
-  inputTypes = [Int; Float];
-  outputType = Same;
-}
+let unOutputType u = match u with
+  | Neg -> Same | Not -> Same
 
-let eqeq = {
-  symbol = "==";
-  inputTypes = [Int; Float; String; Bool];
-  outputType = Different Bool;
-}
+let nums = [Int; Float]
 
-let neq = {
-  symbol = "!=";
-  inputTypes = [Int; Float; String; Bool];
-  outputType = Different Bool;
-}
+let binInputTypes b = match b with
+  | Add -> nums | Sub -> nums | Mult -> nums | Div -> nums
+  | Eqeq -> [Int; Float; String; Bool] | Neq -> [Int; Float; String; Bool]
+  | Less -> nums | LessEq -> nums | Greater -> nums | GreaterEq -> nums
+  | And -> [Bool] | Or -> [Bool]
 
-let less = {
-  symbol = "<";
-  inputTypes = [Int; Float];
-  outputType = Different Bool;
-}
+let dBool = Different Bool
 
-let lessEq = {
-  symbol = "<=";
-  inputTypes = [Int; Float];
-  outputType = Different Bool;
-}
-
-let greater = {
-  symbol = ">";
-  inputTypes = [Int; Float];
-  outputType = Different Bool;
-}
-
-let greaterEq = {
-  symbol = ">=";
-  inputTypes = [Int; Float];
-  outputType = Different Bool;
-}
-
-let boolAnd = {
-  symbol = "&&";
-  inputTypes = [Bool];
-  outputType = Same;
-}
-
-let boolOr = {
-  symbol = "||";
-  inputTypes = [Bool];
-  outputType = Same;
-}
-
-let boolNot = {
-  symbol = "not";
-  inputTypes = [Bool];
-  outputType = Same;
-}
+let binOutputType b = match b with
+  | Add -> Same | Sub -> Same | Mult -> Same | Div -> Same
+  | Eqeq -> dBool | Neq -> dBool
+  | Less -> dBool | LessEq -> dBool | Greater -> dBool | GreaterEq -> dBool
+  | And -> Same | Or -> Same

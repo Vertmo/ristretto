@@ -11,6 +11,7 @@
 open Statement
 open Expression
 open Types
+open Primitives
 
 (** Type checking analysis *)
 
@@ -25,12 +26,12 @@ let rec check_type expr env = match expr with
   | Expression.Bool _ -> Bool
   | VarCall ident -> snd (List.find (fun (i,t) -> i = ident) env)
   | UnOp (p, e) -> let t = check_type e env in
-    if not (List.mem t p.inputTypes) then raise (UnexpectedTypeError ((to_string t)^" cannot be used here"))
-    else (match p.outputType with | Same -> t | Different t -> t)
+    if not (List.mem t (unInputTypes p)) then raise (UnexpectedTypeError ((to_string t)^" cannot be used here"))
+    else (match (unOutputType p) with | Same -> t | Different t -> t)
   | BinOp (p, e1, e2) -> let t1 = check_type e1 env and t2 = check_type e2 env in
     if t1 <> t2 then raise (NotTheSameTypeError ("Types "^(to_string t1)^" and "^(to_string t2)^" are not the same"))
-    else if not (List.mem t1 p.inputTypes) then raise (UnexpectedTypeError ((to_string t1)^" cannot be used here"))
-    else (match p.outputType with | Same -> t1 | Different t -> t)
+    else if not (List.mem t1 (binInputTypes p)) then raise (UnexpectedTypeError ((to_string t1)^" cannot be used here"))
+    else (match (binOutputType p) with | Same -> t1 | Different t -> t)
 
 (** Printing an expression with types *)
 let print_expression_with_type expr env = Expression.print_expression expr; Printf.printf ": %s" (Types.to_string (check_type expr env))
