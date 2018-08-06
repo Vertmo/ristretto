@@ -13,15 +13,19 @@
   open Expression;;
 %}
 
+%token EOF SEMICOL
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
 %token <bool> BOOL
 %token <string> IDENT
-%token LET
-%token EQUAL
+%token LET EQUAL
+%token LPAREN RPAREN
 %token ADD SUB TIMES DIV
-%token EOF SEMICOL
+
+%left ADD SUB
+%left TIMES DIV
+
 %start program
 %type <Statement.stmt> statement
 %type <Statement.stmt list> statements
@@ -48,6 +52,8 @@ expr:
   | STRING { Expression.String $1 }
   | BOOL { Expression.Bool $1 }
   | IDENT { Expression.VarCall $1 }
+
+  | LPAREN expr RPAREN { $2 }
 
   | expr ADD expr { Expression.BinOp (Primitives.add, $1, $3) }
   | expr SUB expr { Expression.BinOp (Primitives.sub, $1, $3) }

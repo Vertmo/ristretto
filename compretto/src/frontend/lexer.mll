@@ -16,20 +16,23 @@ exception Eof
 rule token = parse
   | [' ' '\t'] { token lexbuf }
   | "\n" { Lexing.new_line lexbuf; token lexbuf }
-  | ";" { SEMICOL }
+  | eof { EOF }
+
   | "//"[^ '\n']* { token lexbuf } (* Single line comments *)
   | "/*" { comment lexbuf } (* Start of a multi-line comment *)
-  | eof { EOF }
+
+  | ";" { SEMICOL }
+  | "(" { LPAREN } | ")" { RPAREN }
 
   | "-"?['0'-'9']+ as num { INT(int_of_string num) }
   | "-"?['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
   | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
-
   | "true" { BOOL(true) } | "false" { BOOL(false) }
-  | "let" { LET }
-  | "=" { EQUAL }
-  | "+" { ADD } | "-" { SUB } | "*" { TIMES } | "/" { DIV }
+
+  | "let" { LET } | "=" { EQUAL }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
+
+  | "+" { ADD } | "-" { SUB } | "*" { TIMES } | "/" { DIV }
 
 and comment = parse
   | "*/" { token lexbuf } (* End of a multi-line comment *)

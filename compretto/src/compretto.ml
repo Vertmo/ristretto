@@ -14,7 +14,7 @@ let main filename =
   let filename = Sys.argv.(1) in
   let ic = open_in filename in
   let ast = LexAndParse.lexAndParse ic in
-  TypeChecking.print_program_with_types ast (* TODO *)
+  Statement.print_program ast (* TODO *)
 
 let _ =
   if Array.length Sys.argv <> 2

@@ -22,5 +22,5 @@ let rec print_expression expr = match expr with
   | String s -> Printf.printf "\"%s\"" s
   | Bool b -> if b then print_string "true" else print_string "false"
   | VarCall ident -> print_string ident
-  | BinOp (p, e1, e2) -> print_expression e1; Printf.printf " %s " p.symbol; print_expression e2
+  | BinOp (p, e1, e2) -> print_string "("; print_expression e1; Printf.printf " %s " p.symbol; print_expression e2; print_string ")"
 
