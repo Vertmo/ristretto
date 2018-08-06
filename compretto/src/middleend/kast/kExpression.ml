@@ -8,21 +8,14 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-open Statement
-open Expression
+open Types
 
-(** Check that var exist when used *)
+(** k-expression type *)
+type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool
+           | KEVar of string * Types.types (** Variable identifier. Contains type of the variable *)
+           | KCall of string * kexpr list * Types.types (** Call to a function or primitive. Contains the return type *)
 
-exception UnboundVarError of string
-
-let rec check_exist_expr expr env = match expr with
-  | EVar ident -> if not (List.exists (fun i -> ident = i) env) then raise (UnboundVarError ident)
-  | UnOp (_, e) -> check_exist_expr e env
-  | BinOp (_, e1, e2) -> check_exist_expr e1 env
-  | _ -> ()
-
-let rec check_exist_stmt stmt env = match stmt with
-  | VoidExpr e -> check_exist_expr e env; env
-  | Let (s, e) -> check_exist_expr e env; s::env
-
-and check_exist_program ast = ignore (List.fold_left (fun env stmt -> check_exist_stmt stmt env) [] ast)
+let rec get_type kexpr = match kexpr with
+  | KInt _ -> Int | KFloat _ -> Float | KString _ -> String | KBool _ -> Bool
+  | KEVar (_, t) -> t
+  | KCall (_, _, t) -> t

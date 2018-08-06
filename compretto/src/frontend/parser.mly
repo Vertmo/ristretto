@@ -57,7 +57,7 @@ expr:
   | FLOAT { Expression.Float $1 }
   | STRING { Expression.String $1 }
   | BOOL { Expression.Bool $1 }
-  | IDENT { Expression.VarCall $1 }
+  | IDENT { Expression.EVar $1 }
 
   | LPAREN expr RPAREN { $2 }
 

@@ -37,7 +37,7 @@ let stringTest ctxt =
 let letTest ctxt =
   let ast = lexAndParse (open_in "samples/let.ris") in
   assert_equal (Let ("one",(Int 1))) (List.nth ast 0);
-  assert_equal (VoidExpr (VarCall "hello")) (List.nth ast 3)
+  assert_equal (VoidExpr (EVar "hello")) (List.nth ast 3)
 
 let binOpTest ctxt =
   let ast = lexAndParse (open_in "samples/binOp.ris") in

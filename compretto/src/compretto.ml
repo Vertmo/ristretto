@@ -15,7 +15,9 @@ let main filename =
   let ic = open_in filename in
   let ast = LexAndParse.lexAndParse ic in
   ExistingVar.check_exist_program ast;
-  TypeChecking.print_program_with_types ast (* TODO *)
+  let typeEnv = TypeChecking.check_program_types ast in
+  let _kast = Expand.expand_program ast typeEnv in ()
+  (* TypeChecking.print_program_with_types ast (\* TODO *\) *)
 
 let _ =
   if Array.length Sys.argv <> 2

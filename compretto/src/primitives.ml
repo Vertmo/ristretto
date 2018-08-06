@@ -10,8 +10,6 @@
 
 open Types
 
-type output = Same | Different of types
-
 type binaryOp = Add | Sub | Mult | Div | Eqeq | Neq | Less | LessEq | Greater | GreaterEq | And | Or
 
 type unaryOp = Neg | Not
@@ -27,8 +25,8 @@ let binSymbol b = match b with
 let unInputTypes u = match u with
   | Neg -> [Int; Float] | Not -> [Bool]
 
-let unOutputType u = match u with
-  | Neg -> Same | Not -> Same
+let unOutputType u t = match u with
+  | Neg -> t | Not -> t
 
 let nums = [Int; Float]
 
@@ -38,10 +36,8 @@ let binInputTypes b = match b with
   | Less -> nums | LessEq -> nums | Greater -> nums | GreaterEq -> nums
   | And -> [Bool] | Or -> [Bool]
 
-let dBool = Different Bool
-
-let binOutputType b = match b with
-  | Add -> Same | Sub -> Same | Mult -> Same | Div -> Same
-  | Eqeq -> dBool | Neq -> dBool
-  | Less -> dBool | LessEq -> dBool | Greater -> dBool | GreaterEq -> dBool
-  | And -> Same | Or -> Same
+let binOutputType b t1 t2 = match b with
+  | Add -> t1 | Sub -> t1 | Mult -> t1 | Div -> t1
+  | Eqeq -> Bool | Neq -> Bool
+  | Less -> Bool | LessEq -> Bool | Greater -> Bool | GreaterEq -> Bool
+  | And -> t1 | Or -> t1
