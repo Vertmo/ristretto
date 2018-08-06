@@ -20,7 +20,7 @@ type op = {
 
 let add = {
   symbol = "+";
-  inputTypes = [Int; Float; String];
+  inputTypes = [Int; Float];
   outputType = Same;
 }
 
