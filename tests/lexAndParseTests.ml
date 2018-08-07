@@ -17,7 +17,7 @@ open Expression
 let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
   assert_equal (VoidExpr (Int 1)) (List.nth ast 0);
-  assert_equal (VoidExpr (Int (max_int))) (List.nth ast 3);
+  assert_equal (VoidExpr (Int (2147483647))) (List.nth ast 3);
   assert_equal (VoidExpr (Int (-34))) (List.nth ast 4)
 
 let floatTest ctxt =

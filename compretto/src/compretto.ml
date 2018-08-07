@@ -10,7 +10,7 @@
 
 (** Main module, containing the main function *)
 
-let usage = "usage: " ^ Sys.argv.(0) ^ " [-parse] [-parse-with-analysis] [-expand] <filename>"
+let usage = "usage: " ^ Sys.argv.(0) ^ " [-parse] [-parse-with-analysis] [-expand] <input_file>"
 
 type step = Parse | ParseAnalysis | Expand | All
 
@@ -21,6 +21,13 @@ let speclist = [
   ("-parse-with-analysis", Arg.Unit (fun () -> step := ParseAnalysis), ": parse the code and do static analysis");
   ("-expand", Arg.Unit (fun () -> step := Expand), ": parse and expand the code");
 ]
+
+let out_from_in inputName =
+  let splitted = List.rev (String.split_on_char '/' inputName) in
+  let in_filename = List.hd splitted in
+  let without_ext = (List.hd (String.split_on_char '.' in_filename)) in
+  let out_filename = without_ext^".class" in
+  List.fold_left (fun a e -> e^"/"^a) "" (List.tl splitted)^out_filename
 
 let main filename step =
   let ic = open_in filename in
@@ -33,7 +40,10 @@ let main filename step =
     else (
       let kast = Expand.expand_program ast typeEnv in
       if step = Expand then KStatement.pretty_print_program kast 0
-      else ()
+      else (
+        let outputName = out_from_in filename in
+        Bytegen.gen_bytecode outputName kast
+      )
     )
   )
   (* TypeChecking.print_program_with_types ast (\* TODO *\) *)
