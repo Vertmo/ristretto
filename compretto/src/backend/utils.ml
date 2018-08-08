@@ -10,9 +10,22 @@
 
 (** Some conversion utilities *)
 
+type u2 = int list (* of size 2 *)
+
 (** Convert an int into two bytes *)
 let u2_of_int i =
   [i/255; i mod 255]
+
+type u4 = int list (* of size 4 *)
+
+let u4_of_int i =
+  [i/16581375;(i/65025) mod 16581375;(i/255) mod 65025; i mod 255]
+
+let print_u2 file u2 =
+  List.iter (output_byte file) u2
+
+let print_u4 file u4 =
+  List.iter (output_byte file) u4
 
 let explode s =
   let rec exp i l =

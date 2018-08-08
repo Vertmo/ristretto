@@ -8,7 +8,9 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+open Utils
 open ConstantPool
+open Methods
 
 (** Generate bytecode *)
 
@@ -31,7 +33,7 @@ let print_access_flags file =
 
 (** Print index of Class_info in constant_pool (always 1) *)
 let print_this_class file =
-  List.iter (output_byte file) (Utils.u2_of_int 1)
+  print_u2 file (Utils.u2_of_int 1)
 
 (** Print super_class index in constant_pool (always 3) *)
 let print_super_class file =
@@ -39,19 +41,15 @@ let print_super_class file =
 
 (** Print interfaces_count (always 0) *)
 let print_interfaces_count file =
-  List.iter (output_byte file) (Utils.u2_of_int 0)
+  print_u2 file (Utils.u2_of_int 0)
 
 (** Print fields_count (always 0) *)
 let print_fields_count file =
-  List.iter (output_byte file) (Utils.u2_of_int 0)
-
-(** Print methods_count (always 1 : main) *)
-let print_methods_count file =
-  List.iter (output_byte file) (Utils.u2_of_int 0)
+  print_u2 file (Utils.u2_of_int 0)
 
 (** Print fields_count (always 0) *)
 let print_attributes_count file =
-  List.iter (output_byte file) (Utils.u2_of_int 0)
+  print_u2 file (Utils.u2_of_int 0)
 
 (** Generates all bytecode *)
 let gen_bytecode filename kast =
@@ -61,7 +59,9 @@ let gen_bytecode filename kast =
 
   (* Constant pool*)
   let classname = get_class_name filename in
-  let constantPool = get_constant_pool kast classname in
+  let constantPool = make_constant_pool kast classname in
+  let (constantPool, cpPrimsTable) = add_java_prims constantPool in
+  let (constantPool, methods) = make_methods kast constantPool cpPrimsTable in
   print_constant_pool_count f constantPool;
   print_constant_pool f constantPool;
 
@@ -71,7 +71,8 @@ let gen_bytecode filename kast =
   print_interfaces_count f;
   print_fields_count f;
 
-  print_methods_count f;
+  print_methods_count f methods;
+  print_methods f methods;
   (* TODO print_methods *)
 
   print_attributes_count f;
