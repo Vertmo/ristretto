@@ -23,8 +23,8 @@ type attribute_info = {
 
 (** Max stack and max locals *)
 let max_code_attributes =
-  (u2_of_int 256)@ (* max_stack *)
-  (u2_of_int 256) (* max_locals *)
+  (u2_of_int 1024)@ (* max_stack *)
+  (u2_of_int 1025) (* max_locals *)
 
 (** exception_table_length (0) *)
 let exception_table_length = (u2_of_int 0)
@@ -48,13 +48,17 @@ let make_init_code_attribute cpPrimsTable =
   }
 
 (** Make code for the main method *)
-let make_main_code kast cpPrimsTable =
-  let code = List.concat (List.map code (Compiler.generate_bytecode kast cpPrimsTable))@(code RETURN) in
+let make_main_code kast cpPrimsTable cpFieldsTable cpConstsTable =
+  let code = List.concat (List.map code (Compiler.generate_bytecode kast cpPrimsTable cpFieldsTable cpConstsTable))@
+             (code RETURN) in
   (u4_of_int (List.length code))@code
 
 (** Main method *)
-let make_main_code_attribute kast cpPrimsTable =
-  let info = max_code_attributes@(make_main_code kast cpPrimsTable)@(exception_table_length)@(attributes_count) in
+let make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable =
+  let info = max_code_attributes@
+             (make_main_code kast cpPrimsTable cpFieldsTable cpConstsTable)@
+             (exception_table_length)@
+             (attributes_count) in
   {
     attribute_name_index = u2_of_int 5; (* Code string is in position 5*)
     attribute_length = u4_of_int (List.length info);
@@ -70,7 +74,7 @@ type method_info = {
 }
 
 (** Make the methods (only one : main) *)
-let make_methods kast constantPool cpPrimsTable =
+let make_methods kast constantPool cpPrimsTable cpFieldsTable cpConstsTable =
   (* init *)
   let initName = "<init>" in
   let constantPool = constantPool@[{
@@ -110,7 +114,7 @@ let make_methods kast constantPool cpPrimsTable =
     name_index = u2_of_int name_index;
     descriptor_index = u2_of_int descriptor_index;
     attributes_count = u2_of_int 1;
-    attributes = [make_main_code_attribute kast cpPrimsTable];
+    attributes = [make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable];
   } in
   (constantPool, [init; main])
 

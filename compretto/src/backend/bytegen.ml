@@ -59,9 +59,11 @@ let gen_bytecode filename kast =
 
   (* Constant pool*)
   let classname = get_class_name filename in
-  let constantPool = make_constant_pool kast classname in
+  let constantPool = make_constant_pool classname in
   let (constantPool, cpPrimsTable) = add_java_prims constantPool in
-  let (constantPool, methods) = make_methods kast constantPool cpPrimsTable in
+  let (constantPool, cpFieldsTable) = add_java_fields constantPool in
+  let (constantPool, cpConstantsTable) = add_kast_constants constantPool kast in
+  let (constantPool, methods) = make_methods kast constantPool cpPrimsTable cpFieldsTable cpConstantsTable in
   print_constant_pool_count f constantPool;
   print_constant_pool f constantPool;
 
