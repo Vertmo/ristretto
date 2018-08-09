@@ -23,7 +23,7 @@ let intTest ctxt =
 let floatTest ctxt =
   let ast = lexAndParse (open_in "samples/float.ris") in
   assert_equal (VoidExpr (Float 2.25)) (List.nth ast 0);
-  assert_equal (VoidExpr (Float 42.1865)) (List.nth ast 3)
+  assert_equal (Return (Float 42.1865)) (List.nth ast 3)
 
 let boolTest ctxt =
   let ast = lexAndParse (open_in "samples/bool.ris") in
@@ -32,18 +32,18 @@ let boolTest ctxt =
 let stringTest ctxt =
   let ast = lexAndParse (open_in "samples/string.ris") in
   assert_equal (VoidExpr (String "")) (List.nth ast 0);
-  assert_equal (VoidExpr (String "Hello There !")) (List.nth ast 2)
+  assert_equal (Return (String "Hello There !")) (List.nth ast 2)
 
 let letTest ctxt =
   let ast = lexAndParse (open_in "samples/let.ris") in
   assert_equal (Let ("one",(Int 1))) (List.nth ast 0);
-  assert_equal (VoidExpr (EVar "hello")) (List.nth ast 3)
+  assert_equal (Return (EVar "hello")) (List.nth ast 3)
 
 let binOpTest ctxt =
   let ast = lexAndParse (open_in "samples/binOp.ris") in
   assert_equal (VoidExpr (BinOp (Add, (Int 1), (Int 2)))) (List.nth ast 0);
-  assert_equal (VoidExpr (BinOp (Add, (Int 5), (BinOp (Div, (Int 15), (Int 5)))))) (List.nth ast 4);
-  assert_equal (VoidExpr (BinOp (Div, (BinOp (Add, (Int 5), (Int 15))), (Int 5)))) (List.nth ast 5)
+  assert_equal (VoidExpr (BinOp (Add, (Int 5), (BinOp (Div, (Int 15), (Int 5)))))) (List.nth ast 6);
+  assert_equal (Return (BinOp (Div, (BinOp (Add, (Int 5), (Int 15))), (Int 5)))) (List.nth ast 7)
 
 let boolExprTest ctxt =
   let ast = lexAndParse (open_in "samples/boolExpr.ris") in

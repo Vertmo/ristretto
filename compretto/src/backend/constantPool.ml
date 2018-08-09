@@ -177,6 +177,7 @@ let add_kast_constants constantPool kast =
   and find_consts_stmt constantPool kstmt = match kstmt with
     | KVoidExpr ke -> find_consts_expr constantPool ke
     | KLet (_, ke) -> find_consts_expr constantPool ke
+    | KReturn ke -> find_consts_expr constantPool ke
 
   and find_consts_program constantPool kast =
     List.fold_left (fun (cp, t) kstmt ->

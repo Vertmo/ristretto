@@ -40,6 +40,7 @@ let print_expression_with_type expr env = Expression.print_expression expr; Prin
 let rec check_types stmt env = match stmt with
   | VoidExpr e -> ignore (check_type e env); env
   | Let (s, e) -> (s, check_type e env)::env
+  | Return e -> ignore (check_type e env); env
 
 and check_program_types ast = List.fold_left (fun env stmt -> check_types stmt env) [] ast
 
@@ -47,6 +48,7 @@ and check_program_types ast = List.fold_left (fun env stmt -> check_types stmt e
 let rec print_statement_with_types stmt env = match stmt with
   | VoidExpr e -> print_expression_with_type e env
   | Let (s, e) -> Printf.printf "let %s = " s; print_expression_with_type e env
+  | Return e -> print_string "return "; print_expression_with_type e env
 
 and print_program_with_types ast =
   ignore (List.fold_left (fun env stmt -> let env = check_types stmt env in

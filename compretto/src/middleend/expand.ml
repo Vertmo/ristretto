@@ -25,6 +25,7 @@ let rec expand_expr expr env = match expr with
 and expand_stmt stmt env = match stmt with
   | VoidExpr e -> KVoidExpr (expand_expr e env)
   | Let (s, e) -> KLet (s, expand_expr e env)
+  | Return e -> KReturn (expand_expr e env)
 
 (** Expand a program *)
 and expand_program ast env = List.map (fun s -> expand_stmt s env) ast

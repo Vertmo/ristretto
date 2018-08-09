@@ -44,7 +44,7 @@ program:
 
 statements:
     statement SEMICOL statements { $1::$3 }
-  | expr { [Statement.VoidExpr $1] } // Last, returned expression
+  | expr { [Statement.Return $1] } // Last, returned expression
 ;
 
 statement:

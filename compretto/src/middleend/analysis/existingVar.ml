@@ -24,5 +24,6 @@ let rec check_exist_expr expr env = match expr with
 let rec check_exist_stmt stmt env = match stmt with
   | VoidExpr e -> check_exist_expr e env; env
   | Let (s, e) -> check_exist_expr e env; s::env
+  | Return e -> check_exist_expr e env; env
 
 and check_exist_program ast = ignore (List.fold_left (fun env stmt -> check_exist_stmt stmt env) [] ast)
