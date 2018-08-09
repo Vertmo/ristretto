@@ -12,7 +12,13 @@ type opcode =
   | ICONST_0
   | ICONST_1
   | LDC of int
+  | ILOAD of int
+  | FLOAD of int
+  | ALOAD of int
   | ALOAD_0
+  | ISTORE of int
+  | FSTORE of int
+  | ASTORE of int
   | POP
   | IADD
   | FADD
@@ -31,8 +37,14 @@ type opcode =
 let code oc = match oc with
   | ICONST_0 -> [3]
   | ICONST_1 -> [4]
-  | LDC i -> print_int i; print_newline (); [18; i]
+  | LDC i -> [18; i]
+  | ILOAD i -> [21; i]
+  | FLOAD i -> [23; i]
+  | ALOAD i -> [25; i]
   | ALOAD_0 -> [42]
+  | ISTORE i -> [54; i]
+  | FSTORE i -> [56; i]
+  | ASTORE i -> [58; i]
   | POP -> [87]
   | IADD -> [96]
   | FADD -> [98]

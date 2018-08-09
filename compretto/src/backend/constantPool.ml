@@ -154,11 +154,24 @@ let make_int_const i = { tag = Integer; info = u4_of_int i }
 
 let make_float_const f = { tag = Float; info = u4_of_float f }
 
+let make_string_const s constantPool = [
+  (* String info *)
+  { tag = String; info = u2_of_int (List.length constantPool + 2)};
+  (* Utf8 string *)
+  {
+    tag = Utf8;
+    info = (u2_of_int (String.length s))@(u1list_of_string s);
+  }
+]
+
 (** Add kast constants to constant_pool *)
 let add_kast_constants constantPool kast =
   let rec find_consts_expr constantPool kexpr = match kexpr with
     | KInt i -> (constantPool@[make_int_const i], [(kexpr, (List.length constantPool + 1))])
     | KFloat f -> (constantPool@[make_float_const f], [(kexpr, (List.length constantPool + 1))])
+    | KString s -> (constantPool@(make_string_const s constantPool), [(kexpr, (List.length constantPool + 1))])
+    | KCall (_, kes, _) -> List.fold_left (fun (cp, t) ke ->
+      let (newCp, newT) = find_consts_expr cp ke in (newCp, t@newT)) (constantPool, []) kes
     | _ -> (constantPool, [])
 
   and find_consts_stmt constantPool kstmt = match kstmt with
