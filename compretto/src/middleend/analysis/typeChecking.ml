@@ -8,12 +8,12 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Type checking analysis *)
+
 open Statement
 open Expression
 open Types
 open Primitives
-
-(** Type checking analysis *)
 
 exception NotTheSameTypeError of string
 exception UnexpectedTypeError of string
@@ -26,12 +26,12 @@ let rec check_type expr env = match expr with
   | Expression.Bool _ -> Bool
   | EVar ident -> snd (List.find (fun (i,t) -> i = ident) env)
   | UnOp (p, e) -> let t = check_type e env in
-    if not (List.mem t (unInputTypes p)) then raise (UnexpectedTypeError ((to_string t)^" cannot be used here"))
-    else unOutputType p t
+    if not (List.mem t (un_input_types p)) then raise (UnexpectedTypeError ((to_string t)^" cannot be used here"))
+    else un_output_type p t
   | BinOp (p, e1, e2) -> let t1 = check_type e1 env and t2 = check_type e2 env in
     if t1 <> t2 then raise (NotTheSameTypeError ("Types "^(to_string t1)^" and "^(to_string t2)^" are not the same"))
-    else if not (List.mem t1 (binInputTypes p)) then raise (UnexpectedTypeError ((to_string t1)^" cannot be used here"))
-    else binOutputType p t1 t2
+    else if not (List.mem t1 (bin_input_types p)) then raise (UnexpectedTypeError ((to_string t1)^" cannot be used here"))
+    else bin_output_type p t1 t2
 
 (** Printing an expression with types *)
 let print_expression_with_type expr env = Expression.print_expression expr; Printf.printf ": %s" (Types.to_string (check_type expr env))

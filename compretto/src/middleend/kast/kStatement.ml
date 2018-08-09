@@ -8,11 +8,11 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Module for k-statements *)
+
 open Printf
 open Types
 open KExpression
-
-(** k-statement module *)
 
 (** k-statement type *)
 type kstmt = KVoidExpr of kexpr

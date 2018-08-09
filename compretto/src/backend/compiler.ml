@@ -8,6 +8,8 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Compile the kast *)
+
 open Opcodes
 open JavaPrims
 open KStatement
@@ -26,6 +28,11 @@ let rec compile_expr kexpr cpPT cpFT cpCT env isTL = match kexpr with
       | Int | Bool -> [ILOAD (find_from_table env v)]
       | Float -> [FLOAD (find_from_table env v)]
       | String -> [ALOAD (find_from_table env v)])
+  | KCall (s, kes, t) ->
+    if (List.mem s Primitives.all_prims_symbols)
+    then List.fold_left (fun b ke -> b@(compile_expr ke cpPT cpFT cpCT env isTL)) [] kes
+         @(CompilePrims.compile_prim s t)
+    else raise (Failure "Functions not implemented yet")
 
 (** Compile a k-statement *)
 and compile_stmt kstmt cpPT cpFT cpCT env isTL = match kstmt with

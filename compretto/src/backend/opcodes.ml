@@ -8,6 +8,8 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Opcodes of the JVM used by te language *)
+
 type opcode =
   | ICONST_0
   | ICONST_1
@@ -28,6 +30,8 @@ type opcode =
   | FMUL
   | IDIV
   | FDIV
+  | INEG
+  | FNEG
   | RETURN
   | GETSTATIC of int
   | INVOKEVIRTUAL of int
@@ -54,6 +58,8 @@ let code oc = match oc with
   | FMUL -> [106]
   | IDIV -> [108]
   | FDIV -> [110]
+  | INEG -> [116]
+  | FNEG -> [118]
   | RETURN -> [177]
   | GETSTATIC i -> 178::(Utils.u2_of_int i)
   | INVOKEVIRTUAL i -> 182::(Utils.u2_of_int i)

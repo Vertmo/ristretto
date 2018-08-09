@@ -8,11 +8,11 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Generate bytecode *)
+
 open Utils
 open ConstantPool
 open Methods
-
-(** Generate bytecode *)
 
 (** Print the magic_number for class files : 0xCAFEBABE *)
 let print_magic_number file =

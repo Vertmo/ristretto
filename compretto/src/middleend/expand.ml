@@ -8,6 +8,8 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Expand the ast to a kast *)
+
 open Primitives
 open Expression
 open KExpression
@@ -18,8 +20,8 @@ open KStatement
 let rec expand_expr expr env = match expr with
   | Int i -> KInt i | Float f -> KFloat f | Bool b -> KBool b | String s -> KString s
   | EVar ident -> KEVar (ident, (snd (List.find (fun (s, t) -> s = ident) env)))
-  | UnOp (p, e) -> KCall ((unSymbol p), [expand_expr e env], (TypeChecking.check_type expr env))
-  | BinOp (p, e1, e2) -> KCall ((binSymbol p), [expand_expr e1 env; expand_expr e2 env], (TypeChecking.check_type expr env))
+  | UnOp (p, e) -> KCall ((un_symbol p), [expand_expr e env], (TypeChecking.check_type expr env))
+  | BinOp (p, e1, e2) -> KCall ((bin_symbol p), [expand_expr e1 env; expand_expr e2 env], (TypeChecking.check_type expr env))
 
 (** Expand to a k-statement *)
 and expand_stmt stmt env = match stmt with

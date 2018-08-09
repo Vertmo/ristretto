@@ -8,10 +8,11 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Module for k-expressions *)
+
 open Printf
 open Types
 
-(** Module for k-expressions *)
 
 (** k-expression type *)
 type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool

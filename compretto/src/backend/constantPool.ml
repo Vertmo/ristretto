@@ -8,12 +8,12 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Generate the constant pool informations *)
+
 open Utils
 open JavaPrims
 open KExpression
 open KStatement
-
-(** Generate the constant pool informations *)
 
 (** Possible tags *)
 type tag = Class | Fieldref | Methodref | InterfaceMethodref | String | Integer | Float | Long | Double | NameAndType | Utf8 | MethodHandle | MethodType | InvokeDynamic | Module | Package

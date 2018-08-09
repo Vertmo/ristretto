@@ -8,9 +8,8 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-open Lexing
 
-(** Lexing and parsing module *)
+open Lexing
 
 exception LexError of string
 exception ParseError of string

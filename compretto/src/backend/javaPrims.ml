@@ -8,11 +8,13 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Java primitives used by the language *)
+
 type javaPrim = ObjectInit | PrintlnInt | PrintlnFloat | PrintlnString | PrintlnBool
 
 let allJavaPrims = [ObjectInit;PrintlnInt;PrintlnFloat;PrintlnString;PrintlnBool]
 
-(* Name of the primitive *)
+(** Name of the primitive *)
 let name prim = match prim with
   | ObjectInit -> "<init>"
   | PrintlnInt | PrintlnFloat | PrintlnString | PrintlnBool -> "println"

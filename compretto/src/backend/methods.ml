@@ -8,12 +8,12 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Generation of Methods info (<init> and main) *)
+
 open Utils
 open Opcodes
 open JavaPrims
 open ConstantPool
-
-(** Methods info *)
 
 type attribute_info = {
   attribute_name_index: u2;

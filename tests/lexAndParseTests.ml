@@ -43,7 +43,7 @@ let binOpTest ctxt =
   let ast = lexAndParse (open_in "samples/binOp.ris") in
   assert_equal (VoidExpr (BinOp (Add, (Int 1), (Int 2)))) (List.nth ast 0);
   assert_equal (VoidExpr (BinOp (Add, (Int 5), (BinOp (Div, (Int 15), (Int 5)))))) (List.nth ast 6);
-  assert_equal (Return (BinOp (Div, (BinOp (Add, (Int 5), (Int 15))), (Int 5)))) (List.nth ast 7)
+  assert_equal (VoidExpr (BinOp (Div, (BinOp (Add, (Int 5), (Int 15))), (Int 5)))) (List.nth ast 7)
 
 let boolExprTest ctxt =
   let ast = lexAndParse (open_in "samples/boolExpr.ris") in

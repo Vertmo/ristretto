@@ -8,8 +8,11 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Expression module *)
+
 open Primitives
 
+(** Expression *)
 type expr = Int of int (** Primitive integer *)
           | Float of float (** Primitive floating number *)
           | String of string (** Primitive string *)
@@ -25,5 +28,5 @@ let rec print_expression expr = match expr with
   | String s -> Printf.printf "\"%s\"" s
   | Bool b -> if b then print_string "true" else print_string "false"
   | EVar ident -> print_string ident
-  | UnOp (p, e) -> print_string "("; print_string (unSymbol p); print_expression e; print_string ")"
-  | BinOp (p, e1, e2) -> print_string "("; print_expression e1; Printf.printf " %s " (binSymbol p); print_expression e2; print_string ")"
+  | UnOp (p, e) -> print_string "("; print_string (un_symbol p); print_expression e; print_string ")"
+  | BinOp (p, e1, e2) -> print_string "("; print_expression e1; Printf.printf " %s " (bin_symbol p); print_expression e2; print_string ")"

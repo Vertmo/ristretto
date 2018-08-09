@@ -8,9 +8,12 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Statement module *)
+
 open Printf
 open Expression
 
+(** Statement *)
 type stmt = VoidExpr of expr (** Expression in the wind *)
           | Let of string * expr (** Declaring a var and assigning it *)
           | Return of expr (** Return a value at the end of a function / toplevel *)

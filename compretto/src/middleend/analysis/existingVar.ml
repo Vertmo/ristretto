@@ -8,10 +8,10 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
+(** Check that a var has been declared before using *)
+
 open Statement
 open Expression
-
-(** Check that var exist when used *)
 
 exception UnboundVarError of string
 
