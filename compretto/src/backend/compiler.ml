@@ -28,10 +28,10 @@ let rec compile_expr kexpr cpPT cpFT cpCT env isTL = match kexpr with
       | Int | Bool -> [ILOAD (find_from_table env v)]
       | Float -> [FLOAD (find_from_table env v)]
       | String -> [ALOAD (find_from_table env v)])
-  | KCall (s, kes, t) ->
+  | KCall (s, kes, _) ->
     if (List.mem s Primitives.all_prims_symbols)
     then List.fold_left (fun b ke -> b@(compile_expr ke cpPT cpFT cpCT env isTL)) [] kes
-         @(CompilePrims.compile_prim s t)
+         @(CompilePrims.compile_prim s (get_type (List.hd kes)))
     else raise (Failure "Functions not implemented yet")
 
 (** Compile a k-statement *)

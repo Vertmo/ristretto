@@ -50,7 +50,7 @@ let boolExprTest ctxt =
   assert_equal (VoidExpr (BinOp (Less, (Int 1), (Int 3)))) (List.nth ast 0);
   assert_equal (VoidExpr (BinOp (Eqeq,
                                  (Bool true),
-                                 (BinOp (Less, (BinOp (Add, (Int 4), (Int 5))), (Int 2)))))) (List.nth ast 3);
+                                 (BinOp (Less, (BinOp (Add, (Int 4), (Int 5))), (Int 2)))))) (List.nth ast 2);
   assert_equal (VoidExpr (BinOp (Or, (Bool true), (Bool false)))) (List.nth ast 4)
 
 let suite = "lexAndParse">:::[

@@ -10,6 +10,8 @@
 
 (** Opcodes of the JVM used by te language *)
 
+open Utils
+
 type opcode =
   | ICONST_0
   | ICONST_1
@@ -32,6 +34,20 @@ type opcode =
   | FDIV
   | INEG
   | FNEG
+  | FCMPG
+  | IFEQ of int
+  | IFNE of int
+  | IFLT of int
+  | IFGE of int
+  | IFGT of int
+  | IFLE of int
+  | IF_ICMPEQ of int
+  | IF_ICMPNE of int
+  | IF_ICMPLT of int
+  | IF_ICMPGE of int
+  | IF_ICMPGT of int
+  | IF_ICMPLE of int
+  | GOTO of int
   | RETURN
   | GETSTATIC of int
   | INVOKEVIRTUAL of int
@@ -60,7 +76,21 @@ let code oc = match oc with
   | FDIV -> [110]
   | INEG -> [116]
   | FNEG -> [118]
+  | FCMPG -> [150]
+  | IFEQ i -> 153::(u2_of_int i)
+  | IFNE i -> 154::(u2_of_int i)
+  | IFLT i -> 155::(u2_of_int i)
+  | IFGE i -> 156::(u2_of_int i)
+  | IFGT i -> 157::(u2_of_int i)
+  | IFLE i -> 158::(u2_of_int i)
+  | IF_ICMPEQ i -> 159::(u2_of_int i)
+  | IF_ICMPNE i -> 160::(u2_of_int i)
+  | IF_ICMPLT i -> 161::(u2_of_int i)
+  | IF_ICMPGE i -> 162::(u2_of_int i)
+  | IF_ICMPGT i -> 163::(u2_of_int i)
+  | IF_ICMPLE i -> 164::(u2_of_int i)
+  | GOTO i -> 167::(u2_of_int i)
   | RETURN -> [177]
-  | GETSTATIC i -> 178::(Utils.u2_of_int i)
-  | INVOKEVIRTUAL i -> 182::(Utils.u2_of_int i)
-  | INVOKESPECIAL i -> 183::(Utils.u2_of_int i)
+  | GETSTATIC i -> 178::(u2_of_int i)
+  | INVOKEVIRTUAL i -> 182::(u2_of_int i)
+  | INVOKESPECIAL i -> 183::(u2_of_int i)

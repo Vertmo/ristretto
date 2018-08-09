@@ -34,7 +34,7 @@ let nums = [Int; Float]
 
 let bin_input_types b = match b with
   | Add -> nums | Sub -> nums | Mult -> nums | Div -> nums
-  | Eqeq -> [Int; Float; String; Bool] | Neq -> [Int; Float; String; Bool]
+  | Eqeq -> [Int; Float; Bool] | Neq -> [Int; Float; Bool]
   | Less -> nums | LessEq -> nums | Greater -> nums | GreaterEq -> nums
   | And -> [Bool] | Or -> [Bool]
 
