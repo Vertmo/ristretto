@@ -166,28 +166,29 @@ let make_string_const s constantPool = [
 
 (** Add kast constants to constant_pool *)
 let add_kast_constants constantPool kast =
-  let rec find_consts_expr constantPool kexpr = match kexpr with
-    | KInt i -> (constantPool@[make_int_const i], [(kexpr, (List.length constantPool + 1))])
-    | KFloat f -> (constantPool@[make_float_const f], [(kexpr, (List.length constantPool + 1))])
-    | KString s -> (constantPool@(make_string_const s constantPool), [(kexpr, (List.length constantPool + 1))])
-    | KCall (_, kes, _) -> List.fold_left (fun (cp, t) ke ->
-      let (newCp, newT) = find_consts_expr cp ke in (newCp, t@newT)) (constantPool, []) kes
-    | _ -> (constantPool, [])
+  let rec find_consts_expr constantPool kexpr cpCT =
+    if List.exists (fun (e, _) -> e = kexpr) cpCT then (constantPool, cpCT)
+    else match kexpr with
+    | KInt i -> (constantPool@[make_int_const i], (kexpr, (List.length constantPool + 1))::cpCT)
+    | KFloat f -> (constantPool@[make_float_const f], (kexpr, (List.length constantPool + 1))::cpCT)
+    | KString s -> (constantPool@(make_string_const s constantPool), (kexpr, (List.length constantPool + 1))::cpCT)
+    | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_consts_expr cp ke t) (constantPool, cpCT) kes
+    | _ -> (constantPool, cpCT)
 
-  and find_consts_stmt constantPool kstmt = match kstmt with
-    | KVoidExpr ke -> find_consts_expr constantPool ke
-    | KLet (_, ke) -> find_consts_expr constantPool ke
-    | KReturn ke -> find_consts_expr constantPool ke
+  and find_consts_stmt constantPool kstmt cpCT = match kstmt with
+    | KVoidExpr ke -> find_consts_expr constantPool ke cpCT
+    | KLet (_, ke) -> find_consts_expr constantPool ke cpCT
+    | KReturn ke -> find_consts_expr constantPool ke cpCT
 
-  and find_consts_program constantPool kast =
-    List.fold_left (fun (cp, t) kstmt ->
-        let (newCp, newT) = find_consts_stmt cp kstmt in
-        (newCp, t@newT)) (constantPool, []) kast in
-  find_consts_program constantPool kast
+  and find_consts_program constantPool kast cpCT =
+    List.fold_left (fun (cp, t) kstmt -> find_consts_stmt cp kstmt t) (constantPool, cpCT) kast in
+  find_consts_program constantPool kast []
 
 (** Print size of the constant pool *)
 let print_constant_pool_count file constantPool =
-  Utils.print_u2 file (Utils.u2_of_int (List.length constantPool + 1))
+  let len = (List.length constantPool + 1) in
+  if len > 255 then raise (Failure "Constant pool too big !");
+  Utils.print_u2 file (Utils.u2_of_int len)
 
 (** Print one info *)
 let print_cpinfo file cpInfo =
