@@ -22,7 +22,7 @@ let un_symbol u = match u with
 let bin_symbol b = match b with
   | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
   | Eqeq -> "==" | Neq -> "!=" | Less -> "<" | LessEq -> "<=" | Greater -> ">" | GreaterEq -> ">="
-  | And -> "&&" | Or -> "&&"
+  | And -> "&&" | Or -> "||"
 
 let un_input_types u = match u with
   | Neg -> [Int; Float] | Not -> [Bool]

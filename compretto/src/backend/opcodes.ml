@@ -34,6 +34,8 @@ type opcode =
   | FDIV
   | INEG
   | FNEG
+  | IAND
+  | IOR
   | FCMPG
   | IFEQ of int
   | IFNE of int
@@ -76,6 +78,8 @@ let code oc = match oc with
   | FDIV -> [110]
   | INEG -> [116]
   | FNEG -> [118]
+  | IAND -> [126]
+  | IOR -> [128]
   | FCMPG -> [150]
   | IFEQ i -> 153::(u2_of_int i)
   | IFNE i -> 154::(u2_of_int i)

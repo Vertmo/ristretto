@@ -37,7 +37,7 @@ let compile_prim s t = match s with
                          | Float -> [FCMPG; IFGT 7]@comp_end | _ -> raise (UnexpectedTypeForPrim s))
   | ">=" -> (match t with | Int -> (IF_ICMPGE 7)::comp_end
                           | Float -> [FCMPG; IFGE 7]@comp_end | _ -> raise (UnexpectedTypeForPrim s))
-  | "&&" -> (match t with | Bool -> [IMUL] | _ -> raise (UnexpectedTypeForPrim s))
-  | "||" -> (match t with | Bool -> [IDIV] | _ -> raise (UnexpectedTypeForPrim s))
-  | "not" -> (match t with | Bool -> [IDIV] | _ -> raise (UnexpectedTypeForPrim s))
+  | "&&" -> (match t with | Bool -> [IAND] | _ -> raise (UnexpectedTypeForPrim s))
+  | "||" -> (match t with | Bool -> [IOR] | _ -> raise (UnexpectedTypeForPrim s))
+  | "not" -> (match t with | Bool -> [IFEQ 7]@comp_end | _ -> raise (UnexpectedTypeForPrim s))
   | _ -> raise (Failure ("Compilation of primitive "^s^" not implemented"))
