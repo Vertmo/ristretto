@@ -32,14 +32,14 @@ let out_from_in inputName =
 let main filename step =
   let ic = open_in filename in
   let ast = LexAndParse.lexAndParse ic in
-  if step = Parse then Statement.print_program ast
+  if step = Parse then Ast.print_program ast
   else (
-    ExistingVar.check_exist_program ast;
-    let typeEnv = TypeChecking.check_program_types ast in
+    ExistingVar.check_exist_program ast [];
+    TypeChecking.check_types ast;
     if step = ParseAnalysis then TypeChecking.print_program_with_types ast
     else (
-      let kast = Expand.expand_program ast typeEnv in
-      if step = Expand then KStatement.pretty_print_program kast 0
+      let kast = Expand.expand_program ast [] in
+      if step = Expand then Kast.pretty_print_program kast 0
       else (
         let outputName = out_from_in filename in
         Bytegen.gen_bytecode outputName kast

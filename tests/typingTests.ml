@@ -10,47 +10,51 @@
 
 open OUnit2
 open LexAndParse
-open Statement
-open Expression
+open Ast
 open Types
 open TypeChecking
 
 let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
   let (VoidExpr e) = (List.nth ast 0) in
-  assert_equal Int (check_type e [])
+  assert_equal Int (check_expr_types e [])
 
 let floatTest ctxt =
   let ast = lexAndParse (open_in "samples/float.ris") in
   let (VoidExpr e) = (List.nth ast 0) in
-  assert_equal Float (check_type e [])
+  assert_equal Float (check_expr_types e [])
 
 let boolTest ctxt =
   let ast = lexAndParse (open_in "samples/bool.ris") in
   let (VoidExpr e) = (List.nth ast 0) in
-  assert_equal Bool (check_type e [])
+  assert_equal Bool (check_expr_types e [])
 
 let stringTest ctxt =
   let ast = lexAndParse (open_in "samples/string.ris") in
   let (VoidExpr e) = (List.nth ast 0) in
-  assert_equal String (check_type e [])
+  assert_equal String (check_expr_types e [])
 
 let letTest ctxt =
   let ast = lexAndParse (open_in "samples/let.ris") in
   let (Return e) = (List.nth ast 3) in
-  assert_equal String (check_type e [("hello", String)])
+  assert_equal String (check_expr_types e [("hello", String)])
 
 let binOpTest ctxt =
   let ast = lexAndParse (open_in "samples/binOp.ris") in
   let (VoidExpr e) = (List.nth ast 5) in
-  assert_equal Float (check_type e []);
+  assert_equal Float (check_expr_types e []);
   let (VoidExpr e) = (List.nth ast 3) in
-  assert_equal Int (check_type e [("x", Int)])
+  assert_equal Int (check_expr_types e [("x", Int)])
 
 let boolExprTest ctxt =
   let ast = lexAndParse (open_in "samples/boolExpr.ris") in
-  let (VoidExpr e) = (List.nth ast 2) in assert_equal Bool (check_type e []);
-  let (Return e) = (List.nth ast 5) in assert_equal Bool (check_type e [])
+  let (VoidExpr e) = (List.nth ast 2) in assert_equal Bool (check_expr_types e []);
+  let (Return e) = (List.nth ast 5) in assert_equal Bool (check_expr_types e [])
+
+let ifTest ctxt =
+  let ast = lexAndParse (open_in "samples/if.ris") in
+  let (VoidExpr e) = (List.nth ast 1) in assert_equal String (check_expr_types e [("y", Int)]);
+  let (Return e) = (List.nth ast 2) in assert_equal Int (check_expr_types e [("y", Int)])
 
 let suite = "typing">:::[
   "int">::intTest;
@@ -60,4 +64,5 @@ let suite = "typing">:::[
   "let">::letTest;
   "binOp">::binOpTest;
   "boolExpr">::boolExprTest;
+  "if">::ifTest;
 ]

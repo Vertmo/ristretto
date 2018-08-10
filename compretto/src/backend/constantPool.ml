@@ -12,8 +12,7 @@
 
 open Utils
 open JavaPrims
-open KExpression
-open KStatement
+open Kast
 
 (** Possible tags *)
 type tag = Class | Fieldref | Methodref | InterfaceMethodref | String | Integer | Float | Long | Double | NameAndType | Utf8 | MethodHandle | MethodType | InvokeDynamic | Module | Package
@@ -166,23 +165,26 @@ let make_string_const s constantPool = [
 
 (** Add kast constants to constant_pool *)
 let add_kast_constants constantPool kast =
-  let rec find_consts_expr constantPool kexpr cpCT =
+  let rec find_consts_expr kexpr constantPool cpCT =
     if List.exists (fun (e, _) -> e = kexpr) cpCT then (constantPool, cpCT)
     else match kexpr with
     | KInt i -> (constantPool@[make_int_const i], (kexpr, (List.length constantPool + 1))::cpCT)
     | KFloat f -> (constantPool@[make_float_const f], (kexpr, (List.length constantPool + 1))::cpCT)
     | KString s -> (constantPool@(make_string_const s constantPool), (kexpr, (List.length constantPool + 1))::cpCT)
-    | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_consts_expr cp ke t) (constantPool, cpCT) kes
-    | _ -> (constantPool, cpCT)
+    | KBool _ | KEVar _ -> (constantPool, cpCT)
+    | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_consts_expr ke cp t) (constantPool, cpCT) kes
+    | KIf (cond, th, el, _) -> let (constantPool, cpCT) = find_consts_expr cond constantPool cpCT in
+      let (constantPool, cpCT) = find_consts_program th constantPool cpCT in
+      let (constantPool, cpCT) = find_consts_program el constantPool cpCT in (constantPool, cpCT)
 
-  and find_consts_stmt constantPool kstmt cpCT = match kstmt with
-    | KVoidExpr ke -> find_consts_expr constantPool ke cpCT
-    | KLet (_, ke) -> find_consts_expr constantPool ke cpCT
-    | KReturn ke -> find_consts_expr constantPool ke cpCT
+  and find_consts_stmt kstmt constantPool cpCT = match kstmt with
+    | KVoidExpr ke -> find_consts_expr ke constantPool cpCT
+    | KLet (_, ke) -> find_consts_expr ke constantPool cpCT
+    | KReturn ke -> find_consts_expr ke constantPool cpCT
 
-  and find_consts_program constantPool kast cpCT =
-    List.fold_left (fun (cp, t) kstmt -> find_consts_stmt cp kstmt t) (constantPool, cpCT) kast in
-  find_consts_program constantPool kast []
+  and find_consts_program kast constantPool cpCT =
+    List.fold_left (fun (cp, t) kstmt -> find_consts_stmt kstmt cp t) (constantPool, cpCT) kast in
+  find_consts_program kast constantPool []
 
 (** Print size of the constant pool *)
 let print_constant_pool_count file constantPool =

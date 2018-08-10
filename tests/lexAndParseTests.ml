@@ -11,8 +11,7 @@
 open OUnit2
 open LexAndParse
 open Primitives
-open Statement
-open Expression
+open Ast
 
 let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
@@ -53,6 +52,10 @@ let boolExprTest ctxt =
                                  (BinOp (Less, (BinOp (Add, (Int 4), (Int 5))), (Int 2)))))) (List.nth ast 2);
   assert_equal (VoidExpr (BinOp (Or, (Bool true), (Bool false)))) (List.nth ast 4)
 
+let ifTest ctxt =
+  let ast = lexAndParse (open_in "samples/if.ris") in
+  assert_equal (VoidExpr (If ((BinOp (Greater, (EVar "y"), (Int 1))), [Return (String "Bigger")], [Return (String "Smaller")]))) (List.nth ast 1)
+
 let suite = "lexAndParse">:::[
   "int">::intTest;
   "float">::floatTest;
@@ -61,4 +64,5 @@ let suite = "lexAndParse">:::[
   "let">::letTest;
   "binOp">::binOpTest;
   "boolExpr">::boolExprTest;
+  "if">::ifTest;
 ]

@@ -98,3 +98,6 @@ let code oc = match oc with
   | GETSTATIC i -> 178::(u2_of_int i)
   | INVOKEVIRTUAL i -> 182::(u2_of_int i)
   | INVOKESPECIAL i -> 183::(u2_of_int i)
+
+(** Number of bytes of a segment of bytecode *)
+let bytecode_length opcs = (List.length (List.concat (List.map code opcs)))

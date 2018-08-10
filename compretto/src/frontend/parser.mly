@@ -9,8 +9,7 @@
 /******************************************************************************/
 
 %{
-  open Statement;;
-  open Expression;;
+  open Ast;;
 %}
 
 %token EOF SEMICOL
@@ -19,8 +18,9 @@
 %token <string> STRING
 %token <bool> BOOL
 %token <string> IDENT
+%token LPAREN RPAREN LCURLY RCURLY
 %token LET EQUAL
-%token LPAREN RPAREN
+%token IF THEN ELSE
 
 %token ADD SUB MULT DIV
 %token EQEQ NEQ LESS LESSEQ GREATER GREATEREQ
@@ -33,10 +33,10 @@
 %right NOT
 
 %start program
-%type <Statement.stmt> statement
-%type <Statement.stmt list> statements
-%type <Statement.program> program
-%type <Expression.expr> expr
+%type <Ast.stmt> statement
+%type <Ast.stmt list> statements
+%type <Ast.program> program
+%type <Ast.expr> expr
 %%
 program:
   statements EOF { $1 }
@@ -44,37 +44,43 @@ program:
 
 statements:
     statement SEMICOL statements { $1::$3 }
-  | expr { [Statement.Return $1] } // Last, returned expression
+  | expr { [Ast.Return $1] } // Last, returned expression
 ;
 
 statement:
-  | expr { Statement.VoidExpr $1 }
-  | LET IDENT EQUAL expr { Statement.Let ($2, $4) }
+  | expr { Ast.VoidExpr $1 }
+  | LET IDENT EQUAL expr { Ast.Let ($2, $4) }
+;
+
+block:
+  | LCURLY statements RCURLY { $2 }
 ;
 
 expr:
-  | INT { Expression.Int $1 }
-  | FLOAT { Expression.Float $1 }
-  | STRING { Expression.String $1 }
-  | BOOL { Expression.Bool $1 }
-  | IDENT { Expression.EVar $1 }
+  | INT { Ast.Int $1 }
+  | FLOAT { Ast.Float $1 }
+  | STRING { Ast.String $1 }
+  | BOOL { Ast.Bool $1 }
+  | IDENT { Ast.EVar $1 }
 
   | LPAREN expr RPAREN { $2 }
 
-  | expr ADD expr { Expression.BinOp (Add, $1, $3) }
-  | expr SUB expr { Expression.BinOp (Sub, $1, $3) }
-  | expr MULT expr { Expression.BinOp (Mult, $1, $3) }
-  | expr DIV expr { Expression.BinOp (Div, $1, $3) }
-  | SUB expr { Expression.UnOp (Neg, $2) }
+  | expr ADD expr { Ast.BinOp (Add, $1, $3) }
+  | expr SUB expr { Ast.BinOp (Sub, $1, $3) }
+  | expr MULT expr { Ast.BinOp (Mult, $1, $3) }
+  | expr DIV expr { Ast.BinOp (Div, $1, $3) }
+  | SUB expr { Ast.UnOp (Neg, $2) }
 
-  | expr EQEQ expr { Expression.BinOp (Eqeq, $1, $3) }
-  | expr NEQ expr { Expression.BinOp (Neq, $1, $3) }
-  | expr LESS expr { Expression.BinOp (Less, $1, $3) }
-  | expr LESSEQ expr { Expression.BinOp (LessEq, $1, $3) }
-  | expr GREATER expr { Expression.BinOp (Greater, $1, $3) }
-  | expr GREATEREQ expr { Expression.BinOp (GreaterEq, $1, $3) }
+  | expr EQEQ expr { Ast.BinOp (Eqeq, $1, $3) }
+  | expr NEQ expr { Ast.BinOp (Neq, $1, $3) }
+  | expr LESS expr { Ast.BinOp (Less, $1, $3) }
+  | expr LESSEQ expr { Ast.BinOp (LessEq, $1, $3) }
+  | expr GREATER expr { Ast.BinOp (Greater, $1, $3) }
+  | expr GREATEREQ expr { Ast.BinOp (GreaterEq, $1, $3) }
 
-  | expr AND expr { Expression.BinOp (And, $1, $3) }
-  | expr OR expr { Expression.BinOp (Or, $1, $3) }
-  | NOT expr { Expression.UnOp (Not, $2) }
+  | expr AND expr { Ast.BinOp (And, $1, $3) }
+  | expr OR expr { Ast.BinOp (Or, $1, $3) }
+  | NOT expr { Ast.UnOp (Not, $2) }
+
+  | IF expr THEN block ELSE block { If ($2, $4, $6) }
 ;

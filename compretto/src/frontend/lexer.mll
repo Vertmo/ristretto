@@ -23,6 +23,7 @@ rule token = parse
 
   | ";" { SEMICOL }
   | "(" { LPAREN } | ")" { RPAREN }
+  | "{" { LCURLY } | "}" { RCURLY }
 
   | "-"?['0'-'9']+ as num { INT(int_of_string num) }
   | "-"?['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
@@ -34,6 +35,7 @@ rule token = parse
   | "&&" { AND } | "||" { OR } | "not" { NOT }
 
   | "let" { LET } | "=" { EQUAL }
+  | "if" { IF } | "then" { THEN } | "else" { ELSE }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
 
 and comment = parse
