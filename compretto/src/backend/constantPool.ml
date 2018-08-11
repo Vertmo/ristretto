@@ -181,10 +181,15 @@ let add_kast_constants constantPool kast =
     | KVoidExpr ke -> find_consts_expr ke constantPool cpCT
     | KLet (_, ke) -> find_consts_expr ke constantPool cpCT
     | KReturn ke -> find_consts_expr ke constantPool cpCT
+    | KPrint ke -> find_consts_expr ke constantPool cpCT
 
   and find_consts_program kast constantPool cpCT =
     List.fold_left (fun (cp, t) kstmt -> find_consts_stmt kstmt cp t) (constantPool, cpCT) kast in
-  find_consts_program kast constantPool []
+
+  (* Adding the ================= string *)
+  let (constantPool, cpCT) = find_consts_expr (KString "=============================================") constantPool [] in
+  (* Adding all the constants of the program *)
+  find_consts_program kast constantPool cpCT
 
 (** Print size of the constant pool *)
 let print_constant_pool_count file constantPool =

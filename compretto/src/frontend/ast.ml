@@ -25,8 +25,9 @@ type expr = Int of int (** Primitive integer *)
 
 (** Statement *)
 and stmt = VoidExpr of expr (** Expression in the wind *)
-          | Let of string * expr (** Declaring a var and assigning it *)
-          | Return of expr (** Return a value at the end of a function / toplevel *)
+         | Let of string * expr (** Declaring a var and assigning it *)
+         | Return of expr (** Return a value at the end of a function / toplevel *)
+         | Print of expr (** Print an expression *)
 
 (** Program (statement list) *)
 and program = stmt list
@@ -48,6 +49,7 @@ and print_statement stmt = match stmt with
   | VoidExpr e -> print_expression e
   | Let (s, e) -> printf "let %s = " s; print_expression e
   | Return e -> print_string "return "; print_expression e
+  | Print e -> print_string "print "; print_expression e
 
 (** Print a whole program *)
 and print_program ast = List.iter (fun s -> print_statement s; print_endline ";") ast

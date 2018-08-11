@@ -51,12 +51,15 @@ and compile_stmt kstmt cpPT cpFT cpCT env rCtxt = match kstmt with
   | KReturn kexpr ->
     ((match rCtxt with
         (* if we're in toplevel (not a function), we print the result *)
-        | TopLevel -> compile_print kexpr cpPT cpFT cpCT env rCtxt
+        | TopLevel -> ((compile_print (KString "=============================================") cpPT cpFT cpCT env rCtxt)@
+                       (compile_print kexpr cpPT cpFT cpCT env rCtxt)@
+                       (compile_print (KString "=============================================") cpPT cpFT cpCT env rCtxt))
         (* if we're in a if block we keep the result *)
         | If -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt)
         (* if we're in a normal block we simply pop *)
         | Block -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt)@[POP]),
      env)
+  | KPrint kexpr -> (compile_print kexpr cpPT cpFT cpCT env rCtxt, env)
 
 (** Compile a KPrint *)
 and compile_print kexpr cpPT cpFT cpCT env rCtxt =

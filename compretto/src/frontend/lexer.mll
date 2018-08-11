@@ -36,6 +36,7 @@ rule token = parse
 
   | "let" { LET } | "=" { EQUAL }
   | "if" { IF } | "then" { THEN } | "else" { ELSE }
+  | "print" { PRINT }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
 
 and comment = parse

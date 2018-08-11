@@ -21,6 +21,7 @@
 %token LPAREN RPAREN LCURLY RCURLY
 %token LET EQUAL
 %token IF THEN ELSE
+%token PRINT
 
 %token ADD SUB MULT DIV
 %token EQEQ NEQ LESS LESSEQ GREATER GREATEREQ
@@ -50,6 +51,7 @@ statements:
 statement:
   | expr { Ast.VoidExpr $1 }
   | LET IDENT EQUAL expr { Ast.Let ($2, $4) }
+  | PRINT expr { Print ($2) }
 ;
 
 block:

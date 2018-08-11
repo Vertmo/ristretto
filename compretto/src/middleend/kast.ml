@@ -21,8 +21,9 @@ type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool
 
 (** k-statement type *)
 and kstmt = KVoidExpr of kexpr
-           | KLet of string * kexpr
-           | KReturn of kexpr
+          | KLet of string * kexpr
+          | KReturn of kexpr
+          | KPrint of kexpr
 
 (* k-program (list of k-statement) *)
 and kprogram = kstmt list
@@ -63,6 +64,9 @@ and pretty_print_stmt kstmt tab_level = match kstmt with
     pretty_print_expr ke (tab_level + 1); print_newline ();
     indent tab_level; print_string "}"
   | KReturn ke -> indent tab_level; printf "KReturn(%s) {\n" (to_string (get_type ke));
+    pretty_print_expr ke (tab_level + 1); print_newline ();
+    indent tab_level; print_string "}"
+  | KPrint ke -> indent tab_level; printf "KPrint(%s) {\n" (to_string (get_type ke));
     pretty_print_expr ke (tab_level + 1); print_newline ();
     indent tab_level; print_string "}"
 
