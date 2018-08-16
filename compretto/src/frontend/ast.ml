@@ -22,15 +22,23 @@ type expr = Int of int (** Primitive integer *)
           | UnOp of unaryOp * expr (** Unary operator *)
           | BinOp of binaryOp * expr * expr (** Binary operator *)
           | If of expr * program * program (** if then else *)
+          | Funcall of string * expr list (** Call to a function *)
 
 (** Statement *)
 and stmt = VoidExpr of expr (** Expression in the wind *)
          | Let of string * expr (** Declaring a var and assigning it *)
          | Return of expr (** Return a value at the end of a function / toplevel *)
          | Print of expr (** Print an expression *)
+         | Function of string * (string * string) list * string * program (** Declare a function *)
 
 (** Program (statement list) *)
 and program = stmt list
+
+(** Print a list with values separated by commas *)
+let rec print_csv_list l printFun = match l with
+  | [] -> ()
+  | [e] -> printFun e
+  | h::q -> printFun h; print_string ", "; print_csv_list q printFun
 
 (** Print an expression *)
 let rec print_expression expr = match expr with
@@ -43,6 +51,7 @@ let rec print_expression expr = match expr with
   | BinOp (p, e1, e2) -> print_string "("; print_expression e1; Printf.printf " %s " (bin_symbol p); print_expression e2; print_string ")"
   | If (cond, th, el) -> print_string "if ("; print_expression cond; print_string ") then {\n";
     print_program th; print_string "} else {\n"; print_program el; print_string "}"
+  | Funcall (ident, exprs) -> printf "%s(" ident; print_csv_list exprs print_expression; print_string ")"
 
 (** Print a statement *)
 and print_statement stmt = match stmt with
@@ -50,6 +59,9 @@ and print_statement stmt = match stmt with
   | Let (s, e) -> printf "let %s = " s; print_expression e
   | Return e -> print_string "return "; print_expression e
   | Print e -> print_string "print "; print_expression e
+  | Function (ident, args, _, body) -> printf "fun %s(" ident;
+    print_csv_list (fst (List.split args)) print_string; print_endline ") {";
+    print_program body; print_string "}"
 
 (** Print a whole program *)
 and print_program ast = List.iter (fun s -> print_statement s; print_endline ";") ast

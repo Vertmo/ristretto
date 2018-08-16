@@ -50,6 +50,8 @@ type opcode =
   | IF_ICMPGT of int
   | IF_ICMPLE of int
   | GOTO of int
+  | JSR of int
+  | RET of int
   | RETURN
   | GETSTATIC of int
   | INVOKEVIRTUAL of int
@@ -94,6 +96,8 @@ let code oc = match oc with
   | IF_ICMPGT i -> 163::(u2_of_int i)
   | IF_ICMPLE i -> 164::(u2_of_int i)
   | GOTO i -> 167::(u2_of_int i)
+  | JSR i -> 168::(u2_of_int i)
+  | RET i -> [169; i]
   | RETURN -> [177]
   | GETSTATIC i -> 178::(u2_of_int i)
   | INVOKEVIRTUAL i -> 182::(u2_of_int i)

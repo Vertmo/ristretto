@@ -22,6 +22,7 @@ let rec expand_expr expr env = match expr with
   | UnOp (p, e) -> KCall ((un_symbol p), [expand_expr e env], (check_expr_types expr env))
   | BinOp (p, e1, e2) -> KCall ((bin_symbol p), [expand_expr e1 env; expand_expr e2 env], (check_expr_types expr env))
   | If (cond, th, el) -> KIf ((expand_expr cond env), (expand_program th env), (expand_program el env), (check_expr_types expr env))
+  | Funcall (ident, es) -> KCall (ident, List.map (fun e -> expand_expr e env) es, (check_expr_types expr env))
 
 (** Expand to a k-statement *)
 and expand_stmt stmt env = match stmt with
@@ -29,6 +30,13 @@ and expand_stmt stmt env = match stmt with
   | Let (s, e) -> KLet (s, expand_expr e env)
   | Return e -> KReturn (expand_expr e env)
   | Print e -> KPrint (expand_expr e env)
+  | Function (ident, args, _, body) ->
+    let t = find_from_table (check_stmt_types stmt env) ident in match t with
+    | Fun (it, rt) -> KLet (ident,
+                            KClosure (fst (List.split args),
+                                      expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
+                                      t))
+    | _ -> invalid_arg "expand_stmt"
 
 (** Expand a program *)
-and expand_program ast env = List.map (fun s -> expand_stmt s (snd (check_program_types ast env))) ast
+and expand_program ast env = let env = snd (check_program_types ast env) in List.map (fun s -> expand_stmt s env) ast

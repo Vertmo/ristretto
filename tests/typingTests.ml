@@ -56,6 +56,14 @@ let ifTest ctxt =
   let (VoidExpr e) = (List.nth ast 1) in assert_equal String (check_expr_types e [("y", Int)]);
   let (Return e) = (List.nth ast 2) in assert_equal Int (check_expr_types e [("y", Int)])
 
+let functionTest ctxt =
+  let ast = lexAndParse (open_in "samples/function.ris") in
+  let env = [] in
+  let env = check_stmt_types (List.nth ast 0) env in (* fun ident *)
+  let env = check_stmt_types (List.nth ast 10) env in (* fun isLess *)
+  assert_equal (Fun ([String], String)) (snd (List.find (fun (s, _) -> s = "ident") env));
+  assert_equal (Fun ([Int; Int], Bool)) (snd (List.find (fun (s, _) -> s = "isLess") env))
+
 let suite = "typing">:::[
   "int">::intTest;
   "float">::floatTest;
@@ -65,4 +73,5 @@ let suite = "typing">:::[
   "binOp">::binOpTest;
   "boolExpr">::boolExprTest;
   "if">::ifTest;
+  "function">::functionTest;
 ]

@@ -174,8 +174,9 @@ let add_kast_constants constantPool kast =
     | KBool _ | KEVar _ -> (constantPool, cpCT)
     | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_consts_expr ke cp t) (constantPool, cpCT) kes
     | KIf (cond, th, el, _) -> let (constantPool, cpCT) = find_consts_expr cond constantPool cpCT in
-      let (constantPool, cpCT) = find_consts_program th constantPool cpCT in
-      let (constantPool, cpCT) = find_consts_program el constantPool cpCT in (constantPool, cpCT)
+      let (constantPool, cpCT) = find_consts_program th constantPool cpCT in (* constants in then branch *)
+      find_consts_program el constantPool cpCT (* constants in else branch *)
+    | KClosure (_, body, _) -> find_consts_program body constantPool cpCT
 
   and find_consts_stmt kstmt constantPool cpCT = match kstmt with
     | KVoidExpr ke -> find_consts_expr ke constantPool cpCT

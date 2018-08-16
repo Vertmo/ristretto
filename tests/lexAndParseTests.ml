@@ -17,7 +17,7 @@ let intTest ctxt =
   let ast = lexAndParse (open_in "samples/int.ris") in
   assert_equal (VoidExpr (Int 1)) (List.nth ast 0);
   assert_equal (VoidExpr (Int (2147483647))) (List.nth ast 3);
-  assert_equal (VoidExpr (Int (-34))) (List.nth ast 4)
+  assert_equal (VoidExpr (UnOp (Neg, (Int (34))))) (List.nth ast 4)
 
 let floatTest ctxt =
   let ast = lexAndParse (open_in "samples/float.ris") in
@@ -56,6 +56,12 @@ let ifTest ctxt =
   let ast = lexAndParse (open_in "samples/if.ris") in
   assert_equal (VoidExpr (If ((BinOp (Greater, (EVar "y"), (Int 1))), [Return (String "Bigger")], [Return (String "Smaller")]))) (List.nth ast 1)
 
+let functionTest ctxt =
+  let ast = lexAndParse (open_in "samples/function.ris") in
+  assert_equal (Function ("ident",[("s","string")],"string",[(Return (EVar "s"))])) (List.nth ast 0);
+  assert_equal (VoidExpr (Funcall ("ident", [String "Hello"]))) (List.nth ast 1);
+  assert_equal (Function ("mult",[("x","float");("y","float")],"float",[(Return (BinOp (Mult, (EVar "x"), (EVar "y"))))])) (List.nth ast 4)
+
 let suite = "lexAndParse">:::[
   "int">::intTest;
   "float">::floatTest;
@@ -65,4 +71,5 @@ let suite = "lexAndParse">:::[
   "binOp">::binOpTest;
   "boolExpr">::boolExprTest;
   "if">::ifTest;
+  "function">::functionTest;
 ]

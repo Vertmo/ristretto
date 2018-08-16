@@ -114,7 +114,7 @@ let make_methods kast constantPool cpPrimsTable cpFieldsTable cpConstsTable =
     name_index = u2_of_int name_index;
     descriptor_index = u2_of_int descriptor_index;
     attributes_count = u2_of_int 1;
-    attributes = [make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable];
+    attributes = [make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable (* TODO StackMapTable *)];
   } in
   (constantPool, [init; main])
 

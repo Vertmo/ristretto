@@ -20,7 +20,7 @@ let print_magic_number file =
 
 (** Print version_number (u2 minor, u2 major. Here, targeting with java 6 or better) *)
 let print_version_number file =
-  List.iter (fun i -> output_byte file i) [0;0;0;50]
+  List.iter (fun i -> output_byte file i) ((u2_of_int 0)@(u2_of_int 50))
 
 (** Get the class name corresponding to the file *)
 let get_class_name filepath =

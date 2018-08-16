@@ -21,12 +21,13 @@ rule token = parse
   | "//"[^ '\n']* { token lexbuf } (* Single line comments *)
   | "/*" { comment lexbuf } (* Start of a multi-line comment *)
 
-  | ";" { SEMICOL }
+  | ";" { SEMICOL } | "," { COMMA }
   | "(" { LPAREN } | ")" { RPAREN }
   | "{" { LCURLY } | "}" { RCURLY }
+  | "->" { RARROW }
 
-  | "-"?['0'-'9']+ as num { INT(int_of_string num) }
-  | "-"?['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
+  | ['0'-'9']+ as num { INT(int_of_string num) }
+  | ['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
   | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
   | "true" { BOOL(true) } | "false" { BOOL(false) }
 
@@ -34,7 +35,7 @@ rule token = parse
   | "==" { EQEQ } | "!=" { NEQ } | "<" { LESS } | "<=" { LESSEQ } | ">" { GREATER } | ">=" { GREATEREQ }
   | "&&" { AND } | "||" { OR } | "not" { NOT }
 
-  | "let" { LET } | "=" { EQUAL }
+  | "let" { LET } | "=" { EQUAL } | "fun" { FUN }
   | "if" { IF } | "then" { THEN } | "else" { ELSE }
   | "print" { PRINT }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }

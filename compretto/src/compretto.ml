@@ -36,7 +36,7 @@ let main filename step =
   else (
     ExistingVar.check_exist_program ast [];
     TypeChecking.check_types ast;
-    if step = ParseAnalysis then TypeChecking.print_program_with_types ast
+    if step = ParseAnalysis then TypeChecking.print_program_with_types ast []
     else (
       let kast = Expand.expand_program ast [] in
       if step = Expand then Kast.pretty_print_program kast 0
