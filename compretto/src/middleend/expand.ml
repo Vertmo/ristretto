@@ -32,10 +32,9 @@ and expand_stmt stmt env = match stmt with
   | Print e -> KPrint (expand_expr e env)
   | Function (ident, args, _, body) ->
     let t = find_from_table (check_stmt_types stmt env) ident in match t with
-    | Fun (it, rt) -> KLet (ident,
-                            KClosure (fst (List.split args),
-                                      expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
-                                      t))
+    | Fun (it, rt) -> KFunction (ident, List.map fst args,
+                                 expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
+                                 t)
     | _ -> invalid_arg "expand_stmt"
 
 (** Expand a program *)

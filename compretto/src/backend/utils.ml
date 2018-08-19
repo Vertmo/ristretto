@@ -43,3 +43,6 @@ let explode s =
 (** Converts a string to a u1 list *)
 let u1list_of_string s =
   List.map int_of_char (explode s)
+
+let find_from_table cpTable toFind =
+  (snd (List.find (fun (s, _) -> s = toFind) cpTable))

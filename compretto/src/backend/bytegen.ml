@@ -13,6 +13,7 @@
 open Utils
 open ConstantPool
 open Methods
+open Compiler
 
 (** Print the magic_number for class files : 0xCAFEBABE *)
 let print_magic_number file =
@@ -63,7 +64,13 @@ let gen_bytecode filename kast =
   let (constantPool, cpPrimsTable) = add_java_prims constantPool in
   let (constantPool, cpFieldsTable) = add_java_fields constantPool in
   let (constantPool, cpConstantsTable) = add_kast_constants constantPool kast in
-  let (constantPool, methods) = make_methods kast constantPool cpPrimsTable cpFieldsTable cpConstantsTable in
+  let (constantPool, init) = add_method constantPool "<init>" "()V"
+      [ ALOAD_0;
+        INVOKESPECIAL (find_from_table cpPrimsTable JavaPrims.ObjectInit);
+        RETURN
+      ] false in
+  let (constantPool, main) = add_method constantPool "main" "([Ljava/lang/String;)V"
+      (generate_bytecode kast cpPrimsTable cpFieldsTable cpConstantsTable) true in
   print_constant_pool_count f constantPool;
   print_constant_pool f constantPool;
 
@@ -73,9 +80,8 @@ let gen_bytecode filename kast =
   print_interfaces_count f;
   print_fields_count f;
 
-  print_methods_count f methods;
-  print_methods f methods;
-  (* TODO print_methods *)
+  print_methods_count f [init;main];
+  print_methods f [init;main];
 
   print_attributes_count f;
   close_out f;

@@ -8,8 +8,6 @@
 (*                    GNU General Public License v3.0                         *)
 (******************************************************************************)
 
-(** Generation of Methods info (<init> and main) *)
-
 open Utils
 open Opcodes
 open JavaPrims
@@ -21,50 +19,6 @@ type attribute_info = {
   info: int list
 }
 
-(** Max stack and max locals *)
-let max_code_attributes =
-  (u2_of_int 1024)@ (* max_stack *)
-  (u2_of_int 1025) (* max_locals *)
-
-(** exception_table_length (0) *)
-let exception_table_length = (u2_of_int 0)
-
-let attributes_count = (u2_of_int 0)
-
-(** Make code for the init method *)
-let make_init_code cpPrimsTable =
-  let code = (code ALOAD_0)@
-             (code (INVOKESPECIAL (snd (List.find (fun (p, _) -> (p = ObjectInit)) cpPrimsTable))))@
-             (code RETURN) in
-  (u4_of_int (List.length code))@code
-
-(** Class initialization *)
-let make_init_code_attribute cpPrimsTable =
-  let info = max_code_attributes@(make_init_code cpPrimsTable)@(exception_table_length)@(attributes_count) in
-  {
-    attribute_name_index = u2_of_int 5;
-    attribute_length = u4_of_int (List.length info);
-    info = info;
-  }
-
-(** Make code for the main method *)
-let make_main_code kast cpPrimsTable cpFieldsTable cpConstsTable =
-  let code = List.concat (List.map code (Compiler.generate_bytecode kast cpPrimsTable cpFieldsTable cpConstsTable))@
-             (code RETURN) in
-  (u4_of_int (List.length code))@code
-
-(** Main method *)
-let make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable =
-  let info = max_code_attributes@
-             (make_main_code kast cpPrimsTable cpFieldsTable cpConstsTable)@
-             (exception_table_length)@
-             (attributes_count) in
-  {
-    attribute_name_index = u2_of_int 5; (* Code string is in position 5*)
-    attribute_length = u4_of_int (List.length info);
-    info = info;
-  }
-
 type method_info = {
   access_flags: u2;
   name_index: u2;
@@ -73,50 +27,44 @@ type method_info = {
   attributes: attribute_info list;
 }
 
-(** Make the methods (only one : main) *)
-let make_methods kast constantPool cpPrimsTable cpFieldsTable cpConstsTable =
-  (* init *)
-  let initName = "<init>" in
-  let constantPool = constantPool@[{
-      tag = Utf8;
-      info = (u2_of_int (String.length initName))@(u1list_of_string initName)
-    }] in
-  let name_index = List.length constantPool in
-  let descriptor = "()V" in
-  let constantPool = constantPool@[{
-      tag = Utf8;
-      info = (u2_of_int (String.length descriptor))@(u1list_of_string descriptor)
-    }] in
-  let descriptor_index = List.length constantPool in
-  let init = {
-    access_flags = List.map int_of_string ["0x00";"0x01"];
-    name_index = u2_of_int name_index;
-    descriptor_index = u2_of_int descriptor_index;
-    attributes_count = u2_of_int 1;
-    attributes = [make_init_code_attribute cpPrimsTable];
-  } in
+(** Max stack and max locals *)
+let max_code_attributes =
+  (u2_of_int 1024)@ (* max_stack *)
+  (u2_of_int 1024) (* max_locals *)
 
-  (* main *)
-  let mainName = "main" in
-  let constantPool = constantPool@[{
+(** Make code attribute from a method, based on bytecode *)
+let make_code_attribute bc =
+  (* max_stack max_locals code_length code exception_table_length attributes_count *)
+  let bcc = List.concat (List.map code bc) in
+  let info = max_code_attributes@
+             (u4_of_int (List.length bcc))@bcc@
+             (u2_of_int 0)@(u2_of_int 0) in
+  {
+    attribute_name_index = u2_of_int 5; (* Always *)
+    attribute_length = u4_of_int (List.length info);
+    info = info;
+  }
+
+(** Add a new method to the constantPool *)
+let add_method constantPool name descriptor code isStatic =
+  let constantPool = constantPool@[{ (* Name *)
       tag = Utf8;
-      info = (u2_of_int (String.length mainName))@(u1list_of_string mainName)
+      info = (u2_of_int (String.length name))@(u1list_of_string name)
     }] in
-  let name_index = List.length constantPool in
-  let descriptor = "([Ljava/lang/String;)V" in
-  let constantPool = constantPool@[{
+  let nameIndex = List.length constantPool in
+  let constantPool = constantPool@[{ (* Descriptor *)
       tag = Utf8;
       info = (u2_of_int (String.length descriptor))@(u1list_of_string descriptor)
     }] in
-  let descriptor_index = List.length constantPool in
-  let main = {
-    access_flags = List.map int_of_string ["0x00";"0x09"];
-    name_index = u2_of_int name_index;
-    descriptor_index = u2_of_int descriptor_index;
+  let descriptorIndex = List.length constantPool in
+  let meth = {
+    access_flags = List.map int_of_string ["0x00";if isStatic then "0x09" else "0x01"];
+    name_index = u2_of_int nameIndex;
+    descriptor_index = u2_of_int descriptorIndex;
     attributes_count = u2_of_int 1;
-    attributes = [make_main_code_attribute kast cpPrimsTable cpFieldsTable cpConstsTable (* TODO StackMapTable *)];
+    attributes = [make_code_attribute code]
   } in
-  (constantPool, [init; main])
+  (constantPool, meth)
 
 (** Print methods_count (always 1 : main) *)
 let print_methods_count file methods =
@@ -139,5 +87,3 @@ let print_method_info file methodInfo =
 (** Print all methods *)
 let print_methods file methods =
   List.iter (print_method_info file) methods
-
-

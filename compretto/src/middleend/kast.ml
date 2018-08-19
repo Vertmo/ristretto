@@ -18,13 +18,13 @@ type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool
            | KEVar of string * types (** Variable identifier. Contains type of the variable *)
            | KCall of string * kexpr list * types (** Call to a function or primitive. Contains the return type *)
            | KIf of kexpr * kprogram * kprogram * types (** if then else with return type *)
-           | KClosure of string list * kprogram * types (** Closure with full type *)
 
 (** k-statement type *)
 and kstmt = KVoidExpr of kexpr
           | KLet of string * kexpr
           | KReturn of kexpr
           | KPrint of kexpr
+          | KFunction of (string * string list * kprogram * types)
 
 (* k-program (list of k-statement) *)
 and kprogram = kstmt list
@@ -35,7 +35,6 @@ let rec get_type kexpr = match kexpr with
   | KEVar (_, t) -> t
   | KCall (_, _, t) -> t
   | KIf (_, _, _, t) -> t
-  | KClosure (_, _, t) -> t
 
 (** Print an indentation *)
 let indent tab_level = for _ = 0 to (tab_level-1) do print_string "  " done
@@ -63,10 +62,6 @@ let rec pretty_print_expr kexpr tab_level = match kexpr with
     indent tab_level; print_endline "} ELSE {";
     pretty_print_program el (tab_level + 1);
     indent tab_level; print_string "}"
-  | KClosure (args, body, _) -> indent tab_level; print_string "KClosure (";
-    print_csv_list args print_string; print_endline ") {";
-    pretty_print_program body (tab_level + 1);
-    indent tab_level; print_string "}"
 
 (** Print a k-statement *)
 and pretty_print_stmt kstmt tab_level = match kstmt with
@@ -82,6 +77,10 @@ and pretty_print_stmt kstmt tab_level = match kstmt with
   | KPrint ke -> indent tab_level; printf "KPrint(%s) {\n" (string_of_type (get_type ke));
     pretty_print_expr ke (tab_level + 1); print_newline ();
     indent tab_level; print_string "}"
+  | KFunction (ident, args, body, t) -> indent tab_level; printf "KFunction[%s](%s) { " ident (string_of_type t);
+    print_csv_list args print_string; print_endline " } {";
+    pretty_print_program body (tab_level + 1);
+    indent tab_level; print_string "}";
 
 (* Print the k-program *)
 and pretty_print_program kast tab_level =

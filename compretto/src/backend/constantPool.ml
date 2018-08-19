@@ -13,6 +13,7 @@
 open Utils
 open JavaPrims
 open Kast
+open Opcodes
 
 (** Possible tags *)
 type tag = Class | Fieldref | Methodref | InterfaceMethodref | String | Integer | Float | Long | Double | NameAndType | Utf8 | MethodHandle | MethodType | InvokeDynamic | Module | Package
@@ -176,7 +177,6 @@ let add_kast_constants constantPool kast =
     | KIf (cond, th, el, _) -> let (constantPool, cpCT) = find_consts_expr cond constantPool cpCT in
       let (constantPool, cpCT) = find_consts_program th constantPool cpCT in (* constants in then branch *)
       find_consts_program el constantPool cpCT (* constants in else branch *)
-    | KClosure (_, body, _) -> find_consts_program body constantPool cpCT
 
   and find_consts_stmt kstmt constantPool cpCT = match kstmt with
     | KVoidExpr ke -> find_consts_expr ke constantPool cpCT

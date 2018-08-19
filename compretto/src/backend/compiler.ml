@@ -10,14 +10,12 @@
 
 (** Compile the kast *)
 
+open Utils
 open Opcodes
 open JavaPrims
 open Kast
 
 type returnCtxt = TopLevel | Function | If
-
-let find_from_table cpTable toFind =
-  (snd (List.find (fun (s, _) -> s = toFind) cpTable))
 
 (** Compile a k-expression *)
 let rec compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen = match kexpr with
@@ -45,7 +43,6 @@ let rec compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen = match kexpr with
     (compile_expr cond cpPT cpFT cpCT env rCtxt bcLen)@
     [IFEQ ((bytecode_length thB) + 6)]@thB@
     [GOTO ((bytecode_length elB) + 3)]@elB
-  | KClosure _ -> [] (* TODO *)
 
 (** Compile a k-statement *)
 and compile_stmt kstmt cpPT cpFT cpCT env rCtxt bcLen = match kstmt with
@@ -58,14 +55,14 @@ and compile_stmt kstmt cpPT cpFT cpCT env rCtxt bcLen = match kstmt with
   | KReturn kexpr ->
     ((match rCtxt with
         (* if we're in toplevel (not a function), we print the result *)
-        | TopLevel -> List.fold_left
+        | TopLevel -> (List.fold_left
                         (fun b ke -> b@(compile_print ke cpPT cpFT cpCT env rCtxt (bcLen + (bytecode_length b)))) []
                         [KString "=============================================";
                          kexpr;
-                         KString "============================================="]
+                         KString "============================================="])@[RETURN]
         (* if we're in a if block we keep the result *)
         | If -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)
-        (* if we're in a function we pop and ret TODO *)
+        (* if we're in a function we return the value TODO *)
         | Function -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[POP]),
      env)
   | KPrint kexpr -> (compile_print kexpr cpPT cpFT cpCT env rCtxt bcLen, env)
