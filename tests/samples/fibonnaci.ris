@@ -1,0 +1,11 @@
+// Stupid, O(2^n)
+fun fibo(int n) -> int {
+    if (n <= 1) then { n } else { fibo(n-2) + fibo(n-1) }
+};
+print fibo(40);
+
+// Terminal recursive function
+fun fibo(int n, int a, int b) -> int {
+    if (n == 0) then { a } else { fibo(n-1, b, a+b) }
+};
+fibo(40, 0, 1)

@@ -38,4 +38,6 @@ and expand_stmt stmt env = match stmt with
     | _ -> invalid_arg "expand_stmt"
 
 (** Expand a program *)
-and expand_program ast env = let env = snd (check_program_types ast env) in List.map (fun s -> expand_stmt s env) ast
+and expand_program ast env = (* let env = snd (check_program_types ast env) in List.map (fun s -> expand_stmt s env) ast *)
+  fst (List.fold_left (fun (kast, env) stmt -> let env = check_stmt_types stmt env in
+                        (kast@[(expand_stmt stmt env)], env)) ([], env) ast)
