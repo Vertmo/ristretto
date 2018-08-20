@@ -46,12 +46,8 @@ let main filename step =
       )
     )
   )
-  (* TypeChecking.print_program_with_types ast (\* TODO *\) *)
 
 let _ =
   Arg.parse speclist
     (fun x -> main x !step)
     usage
-  (* if Array.length Sys.argv < 2
-   * then print_endline usage
-   * else main Sys.argv.(1) *)

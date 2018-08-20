@@ -19,9 +19,9 @@ open Compiler
 let print_magic_number file =
   List.iter (fun s -> output_byte file (int_of_string s)) ["0xCA";"0xFE";"0xBA";"0xBE"]
 
-(** Print version_number (u2 minor, u2 major. Here, targeting with java 6 or better) *)
+(** Print version_number (u2 minor, u2 major). Here, targeting java 5 or better (that way I don't have to declare stackmap frames) *)
 let print_version_number file =
-  List.iter (fun i -> output_byte file i) ((u2_of_int 0)@(u2_of_int 50))
+  List.iter (fun i -> output_byte file i) ((u2_of_int 0)@(u2_of_int 49))
 
 (** Get the class name corresponding to the file *)
 let get_class_name filepath =
@@ -64,13 +64,15 @@ let gen_bytecode filename kast =
   let (constantPool, cpPrimsTable) = add_java_prims constantPool in
   let (constantPool, cpFieldsTable) = add_java_fields constantPool in
   let (constantPool, cpConstantsTable) = add_kast_constants constantPool kast in
-  let (constantPool, init) = add_method constantPool "<init>" "()V"
+  let (constantPool, init, _) = add_method constantPool "<init>" "()V"
       [ ALOAD_0;
         INVOKESPECIAL (find_from_table cpPrimsTable JavaPrims.ObjectInit);
         RETURN
       ] false in
-  let (constantPool, main) = add_method constantPool "main" "([Ljava/lang/String;)V"
-      (generate_bytecode kast cpPrimsTable cpFieldsTable cpConstantsTable) true in
+  let (constantPool, methods, cpMethodsTable) = find_and_add_methods constantPool cpPrimsTable cpFieldsTable cpConstantsTable [] kast in
+  let (constantPool, main, _) = add_method constantPool "main" "([Ljava/lang/String;)V"
+      (generate_bytecode kast cpPrimsTable cpFieldsTable cpConstantsTable cpMethodsTable) true in
+  let methods = init::main::methods in
   print_constant_pool_count f constantPool;
   print_constant_pool f constantPool;
 
@@ -80,8 +82,8 @@ let gen_bytecode filename kast =
   print_interfaces_count f;
   print_fields_count f;
 
-  print_methods_count f [init;main];
-  print_methods f [init;main];
+  print_methods_count f methods;
+  print_methods f methods;
 
   print_attributes_count f;
   close_out f;

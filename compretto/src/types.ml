@@ -38,3 +38,11 @@ let type_of_string s = match s with
   | "string" -> String
   | "bool" -> Bool
   | _ -> invalid_arg "type_of_string"
+
+(** Get java descriptor for a type *)
+let rec descriptor_of_type t = match t with
+  | Int -> "I"
+  | Float -> "F"
+  | Bool -> "Z"
+  | String -> "Ljava/lang/String;"
+  | Fun (a, r) -> "("^(String.concat "" (List.map descriptor_of_type a))^")"^(descriptor_of_type r)

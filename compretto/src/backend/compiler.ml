@@ -14,64 +14,87 @@ open Utils
 open Opcodes
 open JavaPrims
 open Kast
+open Types
 
-type returnCtxt = TopLevel | Function | If
+type returnCtxt = TopLevel | Function of types | If
+
+(** Environment *)
+type env = {
+  cpPT: (JavaPrims.javaPrim * int) list; (** Java primitives *)
+  cpFT: (string * int) list; (** Java fields *)
+  cpCT: (kexpr * int) list; (** Constants *)
+  cpMT : (kstmt * int) list; (** Methods *)
+  vars: (string * int) list; (** Declared variables *)
+}
+
+(** Add a variable to the environment *)
+let add_var env s index =
+  {
+    cpPT = env.cpPT; cpFT = env.cpFT; cpCT = env.cpCT; cpMT = env.cpMT;
+    vars = ((s, index)::env.vars)
+  }
+
+let add_var_let env s = add_var env s (List.length env.vars + 1)
 
 (** Compile a k-expression *)
-let rec compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen = match kexpr with
-  | KInt i -> [LDC (find_from_table cpCT kexpr)]
-  | KFloat i -> [LDC (find_from_table cpCT kexpr)]
-  | KString s -> [LDC (find_from_table cpCT kexpr)]
+let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
+  | KInt i -> [LDC (find_from_table env.cpCT kexpr)]
+  | KFloat i -> [LDC (find_from_table env.cpCT kexpr)]
+  | KString s -> [LDC (find_from_table env.cpCT kexpr)]
   | KBool b -> if b then [ICONST_1] else [ICONST_0]
-  | KEVar (v, t) -> (match t with
-      | Int | Bool -> [ILOAD (find_from_table env v)]
-      | Float -> [FLOAD (find_from_table env v)]
-      | String -> [ALOAD (find_from_table env v)]
-      | _ -> invalid_arg "compile_expr")
+  | KEVar (v, t) -> (try (match t with
+      | Int | Bool -> [ILOAD (find_from_table env.vars v)]
+      | Float -> [FLOAD (find_from_table env.vars v)]
+      | String -> [ALOAD (find_from_table env.vars v)]
+      | _ -> invalid_arg "compile_expr") with Not_found -> raise (Failure ("EVar not found : "^v)))
   | KCall (s, kes, _) ->
     if (List.mem s Primitives.all_prims_symbols)
-    then List.fold_left (fun b ke -> b@(compile_expr ke cpPT cpFT cpCT env rCtxt (bcLen + (bytecode_length b)))) [] kes (* Compile parameters *)
-         @(CompilePrims.compile_prim s (get_type (List.hd kes)))
-    else (
-      let index = find_from_table env s in
-      let paramsB = (List.fold_left (fun b ke -> b@(compile_expr ke cpPT cpFT cpCT env rCtxt (bcLen + (bytecode_length b)))) [] kes) in (* Compile parameters *)
-      paramsB@[GOTO (index-bcLen-(bytecode_length paramsB)-3)] (* Jump TODO gerer les stack_map et stocker la returnAdress *)
-    )
+    then (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@ (* Compile parameters *)
+         (CompilePrims.compile_prim s (get_type (List.hd kes)))
+    else (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@ (* Compile parameters *)
+         [INVOKESTATIC (try find_from_table env.vars s
+                         with Not_found -> raise (Failure ("Method not found in vars : "^s)))] (* invoke method *)
   | KIf (cond, th, el, t) ->
-    let thB = fst (compile_program th cpPT cpFT cpCT env If bcLen) in
-    let elB = fst (compile_program el cpPT cpFT cpCT env If (bcLen + (bytecode_length thB) + 6)) in
-    (compile_expr cond cpPT cpFT cpCT env rCtxt bcLen)@
+    let thB = fst (compile_program th env If bcLen) in
+    let elB = fst (compile_program el env If (bcLen + (bytecode_length thB) + 6)) in
+    (compile_expr cond env rCtxt bcLen)@
     [IFEQ ((bytecode_length thB) + 6)]@thB@
     [GOTO ((bytecode_length elB) + 3)]@elB
 
 (** Compile a k-statement *)
-and compile_stmt kstmt cpPT cpFT cpCT env rCtxt bcLen = match kstmt with
-  | KVoidExpr kexpr -> ((compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[POP], env)
+and compile_stmt kstmt env rCtxt bcLen = match kstmt with
+  | KVoidExpr kexpr -> ((compile_expr kexpr env rCtxt bcLen)@[POP], env)
   | KLet (s, kexpr) -> (match get_type kexpr with
-      | Int | Bool -> ((compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[ISTORE (List.length env + 1)], (s, List.length env + 1)::env)
-      | Float -> ((compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[FSTORE (List.length env + 1)], (s, List.length env + 1)::env)
-      | String -> ((compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[ASTORE (List.length env + 1)], (s, List.length env + 1)::env)
-      | Fun _ -> ((compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen), (s, bcLen)::env))
+      | Int | Bool -> ((compile_expr kexpr env rCtxt bcLen)@[ISTORE (List.length env.vars + 1)], add_var_let env s)
+      | Float -> ((compile_expr kexpr env rCtxt bcLen)@[FSTORE (List.length env.vars + 1)], add_var_let env s)
+      | String -> ((compile_expr kexpr env rCtxt bcLen)@[ASTORE (List.length env.vars + 1)], add_var_let env s)
+      | _ -> invalid_arg "compile_stmt : unexpected type for let")
   | KReturn kexpr ->
     ((match rCtxt with
         (* if we're in toplevel (not a function), we print the result *)
         | TopLevel -> (List.fold_left
-                        (fun b ke -> b@(compile_print ke cpPT cpFT cpCT env rCtxt (bcLen + (bytecode_length b)))) []
+                        (fun b ke -> b@(compile_print ke env rCtxt (bcLen + (bytecode_length b)))) []
                         [KString "=============================================";
                          kexpr;
                          KString "============================================="])@[RETURN]
         (* if we're in a if block we keep the result *)
-        | If -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)
-        (* if we're in a function we return the value TODO *)
-        | Function -> (compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@[POP]),
+        | If -> (compile_expr kexpr env rCtxt bcLen)
+        (* if we're in a function we return the value *)
+        | Function t -> (compile_expr kexpr env rCtxt bcLen)@[match t with
+            | Int | Bool -> IRETURN
+            | Float -> FRETURN
+            | String -> ARETURN
+            | Fun _ -> invalid_arg "compile_stmt"]),
      env)
-  | KPrint kexpr -> (compile_print kexpr cpPT cpFT cpCT env rCtxt bcLen, env)
+  | KPrint kexpr -> (compile_print kexpr env rCtxt bcLen, env)
+  | KFunction (ident, _, _, _) -> ([], add_var env ident (try find_from_table env.cpMT kstmt
+                                                          with Not_found -> raise (Failure ("Method not found in cpMT : "^ident)))) (* adding the function to the env was handled previously *)
 
 (** Compile a KPrint *)
-and compile_print kexpr cpPT cpFT cpCT env rCtxt bcLen =
-  (GETSTATIC (find_from_table cpFT "out"))::
-  (compile_expr kexpr cpPT cpFT cpCT env rCtxt bcLen)@
-  [INVOKEVIRTUAL (find_from_table cpPT (match get_type kexpr with
+and compile_print kexpr env rCtxt bcLen =
+  (GETSTATIC (find_from_table env.cpFT "out"))::
+  (compile_expr kexpr env rCtxt bcLen)@
+  [INVOKEVIRTUAL (find_from_table env.cpPT (match get_type kexpr with
        | Int -> PrintlnInt
        | Float -> PrintlnFloat
        | String -> PrintlnString
@@ -79,9 +102,15 @@ and compile_print kexpr cpPT cpFT cpCT env rCtxt bcLen =
        | _ -> invalid_arg "compile_print"
      ))]
 
-and compile_program kast cpPT cpFT cpCT env rCtxt bcLen =
-  List.fold_left (fun (b, env) kstmt -> let (newB, env) = (compile_stmt kstmt cpPT cpFT cpCT env rCtxt (bcLen + (bytecode_length b))) in (b@newB, env)) ([], env) kast
+and compile_program kast env rCtxt bcLen =
+  List.fold_left (fun (b, env) kstmt -> let (newB, env) = (compile_stmt kstmt env rCtxt (bcLen + (bytecode_length b))) in (b@newB, env)) ([], env) kast
 
 (** Generate bytecode from the kast *)
-let generate_bytecode kast cpPrimsTable cpFieldsTable cpConstsTable =
-  fst (compile_program kast cpPrimsTable cpFieldsTable cpConstsTable [] TopLevel 0)
+let generate_bytecode kast cpPrimsTable cpFieldsTable cpConstsTable cpMethodsTable =
+  fst (compile_program kast {
+      cpPT = cpPrimsTable;
+      cpFT = cpFieldsTable;
+      cpCT = cpConstsTable;
+      cpMT = cpMethodsTable;
+      vars = [];
+    } TopLevel 0)
