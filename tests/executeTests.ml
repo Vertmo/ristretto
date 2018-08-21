@@ -78,6 +78,7 @@ let functionTest ctxt =
   assert_equal ["Hello";
                 "4";
                 "4.5";
+                "1";
                 "false";
                 "=============================================";
                 "720";

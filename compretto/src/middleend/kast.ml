@@ -24,7 +24,7 @@ and kstmt = KVoidExpr of kexpr
           | KLet of string * kexpr
           | KReturn of kexpr
           | KPrint of kexpr
-          | KFunction of (string * string list * kprogram * types)
+          | KFunction of (string * string list * (string * types) list * kprogram * types) (** Name, args, free variables, body and type *)
 
 (* k-program (list of k-statement) *)
 and kprogram = kstmt list
@@ -77,8 +77,9 @@ and pretty_print_stmt kstmt tab_level = match kstmt with
   | KPrint ke -> indent tab_level; printf "KPrint(%s) {\n" (string_of_type (get_type ke));
     pretty_print_expr ke (tab_level + 1); print_newline ();
     indent tab_level; print_string "}"
-  | KFunction (ident, args, body, t) -> indent tab_level; printf "KFunction[%s](%s) { " ident (string_of_type t);
-    print_csv_list args print_string; print_endline " } {";
+  | KFunction (ident, args, freeVars, body, t) -> indent tab_level; printf "KFunction[%s](%s) { " ident (string_of_type t);
+    print_csv_list args print_string; print_endline " }";
+    indent (tab_level+1); print_string "["; print_csv_list (List.map (fun (s, t) -> s^" : "^(string_of_type t)) freeVars) print_string; print_endline "] {";
     pretty_print_program body (tab_level + 1);
     indent tab_level; print_string "}";
 

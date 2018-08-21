@@ -44,11 +44,7 @@ let print_super_class file =
 let print_interfaces_count file =
   print_u2 file (Utils.u2_of_int 0)
 
-(** Print fields_count (always 0) *)
-let print_fields_count file =
-  print_u2 file (Utils.u2_of_int 0)
-
-(** Print fields_count (always 0) *)
+(** Print attribute_count (always 0) *)
 let print_attributes_count file =
   print_u2 file (Utils.u2_of_int 0)
 
@@ -69,7 +65,7 @@ let gen_bytecode filename kast =
         INVOKESPECIAL (find_from_table cpPrimsTable JavaPrims.ObjectInit);
         RETURN
       ] false in
-  let (constantPool, methods, cpMethodsTable) = find_and_add_methods constantPool cpPrimsTable cpFieldsTable cpConstantsTable [] kast in
+  let (constantPool, methods, fields, cpMethodsTable, cpFieldsTable) = find_and_add_methods constantPool cpPrimsTable cpFieldsTable cpConstantsTable [] kast in
   let (constantPool, main, _) = add_method constantPool "main" "([Ljava/lang/String;)V"
       (generate_bytecode kast cpPrimsTable cpFieldsTable cpConstantsTable cpMethodsTable) true in
   let methods = init::main::methods in
@@ -80,7 +76,9 @@ let gen_bytecode filename kast =
   print_this_class f;
   print_super_class f;
   print_interfaces_count f;
-  print_fields_count f;
+
+  print_fields_count f fields;
+  print_fields f fields;
 
   print_methods_count f methods;
   print_methods f methods;

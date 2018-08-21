@@ -183,7 +183,7 @@ let add_kast_constants constantPool kast =
     | KLet (_, ke) -> find_kexpr ke constantPool cpCT
     | KReturn ke -> find_kexpr ke constantPool cpCT
     | KPrint ke -> find_kexpr ke constantPool cpCT
-    | KFunction (_, _, kast, _) -> find_kprogram kast constantPool cpCT
+    | KFunction (_, _, _, kast, _) -> find_kprogram kast constantPool cpCT
 
   and find_kprogram kast constantPool cpCT =
     List.fold_left (fun (cp, t) kstmt -> find_kstmt kstmt cp t) (constantPool, cpCT) kast in

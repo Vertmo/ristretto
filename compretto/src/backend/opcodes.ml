@@ -57,6 +57,9 @@ type opcode =
   | ARETURN
   | RETURN
   | GETSTATIC of int
+  | PUTSTATIC of int
+  | GETFIELD of int
+  | PUTFIELD of int
   | INVOKEVIRTUAL of int
   | INVOKESPECIAL of int
   | INVOKESTATIC of int
@@ -107,6 +110,9 @@ let code oc = match oc with
   | ARETURN -> [176]
   | RETURN -> [177]
   | GETSTATIC i -> 178::(u2_of_int i)
+  | PUTSTATIC i -> 179::(u2_of_int i)
+  | GETFIELD i -> 180::(u2_of_int i)
+  | PUTFIELD i -> 181::(u2_of_int i)
   | INVOKEVIRTUAL i -> 182::(u2_of_int i)
   | INVOKESPECIAL i -> 183::(u2_of_int i)
   | INVOKESTATIC i -> 184::(u2_of_int i)

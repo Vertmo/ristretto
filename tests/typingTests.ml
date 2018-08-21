@@ -60,7 +60,7 @@ let functionTest ctxt =
   let ast = lexAndParse (open_in "samples/function.ris") in
   let env = [] in
   let env = check_stmt_types (List.nth ast 0) env in (* fun ident *)
-  let env = check_stmt_types (List.nth ast 10) env in (* fun isLess *)
+  let env = check_stmt_types (List.nth ast 11) env in (* fun isLess *)
   assert_equal (Fun ([String], String)) (snd (List.find (fun (s, _) -> s = "ident") env));
   assert_equal (Fun ([Int; Int], Bool)) (snd (List.find (fun (s, _) -> s = "isLess") env))
 

@@ -36,17 +36,20 @@ let add_var env s index =
 
 let add_var_let env s = add_var env s (List.length env.vars + 1)
 
+(** Get variable from the environment, and load it according to it's type *)
+let get_var_from_env v t vars = (try (match t with
+      | Int | Bool -> [ILOAD (find_from_table vars v)]
+      | Float -> [FLOAD (find_from_table vars v)]
+      | String -> [ALOAD (find_from_table vars v)]
+      | _ -> invalid_arg "compile_expr") with Not_found -> raise (Failure ("EVar not found : "^v)))
+
 (** Compile a k-expression *)
 let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
   | KInt i -> [LDC (find_from_table env.cpCT kexpr)]
   | KFloat i -> [LDC (find_from_table env.cpCT kexpr)]
   | KString s -> [LDC (find_from_table env.cpCT kexpr)]
   | KBool b -> if b then [ICONST_1] else [ICONST_0]
-  | KEVar (v, t) -> (try (match t with
-      | Int | Bool -> [ILOAD (find_from_table env.vars v)]
-      | Float -> [FLOAD (find_from_table env.vars v)]
-      | String -> [ALOAD (find_from_table env.vars v)]
-      | _ -> invalid_arg "compile_expr") with Not_found -> raise (Failure ("EVar not found : "^v)))
+  | KEVar (v, t) -> get_var_from_env v t env.vars
   | KCall (s, kes, _) ->
     if (List.mem s Primitives.all_prims_symbols)
     then (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@ (* Compile parameters *)
@@ -87,8 +90,13 @@ and compile_stmt kstmt env rCtxt bcLen = match kstmt with
             | Fun _ -> invalid_arg "compile_stmt"]),
      env)
   | KPrint kexpr -> (compile_print kexpr env rCtxt bcLen, env)
-  | KFunction (ident, _, _, _) -> ([], add_var env ident (try find_from_table env.cpMT kstmt
-                                                          with Not_found -> raise (Failure ("Method not found in cpMT : "^ident)))) (* adding the function to the env was handled previously *)
+  | KFunction (ident, _, fv, _, t) ->
+    let bc = List.concat
+        (List.map (fun (s, tv) ->
+             (get_var_from_env s tv env.vars)@
+             [PUTSTATIC (find_from_table env.cpFT (Printf.sprintf "%s#%s#%s" ident (descriptor_of_type t) s))]) fv) in
+    (bc, add_var env ident (try find_from_table env.cpMT kstmt
+                            with Not_found -> raise (Failure ("Method not found in cpMT : "^ident)))) (* adding the function to the env was handled previously *)
 
 (** Compile a KPrint *)
 and compile_print kexpr env rCtxt bcLen =

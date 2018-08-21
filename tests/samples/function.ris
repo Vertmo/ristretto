@@ -17,18 +17,23 @@ fun mult(float x, float y) -> float { // They can of course take several argumen
 };
 print mult(1.5, 3.0);
 
-// The language uses static environments TODO
-0; //let z = 1;
-0; //fun readZ() -> int {
-//    z
-//};
-0; //let z = 2;
-0; //readZ(); // this should be 1
+// The language uses a static environments
+let z = 1;
+fun readZ(int x, int y) -> int {
+    z
+};
+let z = 2;
+print readZ(1, 2); // this should be 1
+let z = 3.0;
 
 fun isLess(int x, int y) -> bool {
     x < y
 };
 print isLess(10, 1);
+
+fun isLess(int x, int y, int z) -> bool {
+    y > x
+};
 
 fun fact(int n) -> int { // Functions can be recursive
     if (n==0) then { 1 } else { n*fact(n-1) }

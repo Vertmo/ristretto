@@ -32,7 +32,14 @@ and expand_stmt stmt env = match stmt with
   | Print e -> KPrint (expand_expr e env)
   | Function (ident, args, _, body) ->
     let t = find_from_table (check_stmt_types stmt env) ident in match t with
-    | Fun (it, rt) -> KFunction (ident, List.map fst args,
+    | Fun (it, rt) -> KFunction (ident, List.map fst args, (* Adding the free variables from the environment *)
+                                 (List.fold_left (fun l (s, t) ->
+                                      if List.exists (fun (s2, _) -> s2 = s) l || (* Unique names *)
+                                         List.exists (fun (s2, _) -> s2 = s) args (* Name not in the args *)
+                                      then l else (s, t)::l) []
+                                    (List.filter (fun (_, t) -> match t with (* We don't put functions there *)
+                                         | Types.Fun _ -> false
+                                         | _ -> true) env)),
                                  expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
                                  t)
     | _ -> invalid_arg "expand_stmt"
