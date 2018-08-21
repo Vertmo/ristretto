@@ -16,6 +16,7 @@ let suite =
   "tests">:::[
     LexAndParseTests.suite;
     TypingTests.suite;
+    ExecuteTests.suite;
   ]
 
 let () = run_test_tt_main suite

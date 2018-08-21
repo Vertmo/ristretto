@@ -65,13 +65,13 @@ let functionTest ctxt =
   assert_equal (Fun ([Int; Int], Bool)) (snd (List.find (fun (s, _) -> s = "isLess") env))
 
 let suite = "typing">:::[
-  "int">::intTest;
-  "float">::floatTest;
-  "bool">::boolTest;
-  "string">::stringTest;
-  "let">::letTest;
-  "binOp">::binOpTest;
-  "boolExpr">::boolExprTest;
-  "if">::ifTest;
-  "function">::functionTest;
-]
+    "int">::intTest;
+    "float">::floatTest;
+    "bool">::boolTest;
+    "string">::stringTest;
+    "let">::letTest;
+    "binOp">::binOpTest;
+    "boolExpr">::boolExprTest;
+    "if">::ifTest;
+    "function">::functionTest;
+  ]

@@ -13,18 +13,17 @@ fun addOne(int x) -> int { // They can contain a whole program (several statemen
 print addOne(3);
 
 fun mult(float x, float y) -> float { // They can of course take several arguments
-    let z = x * y;
-    z
+    x * y
 };
 print mult(1.5, 3.0);
 
 // The language uses static environments TODO
-//let z = 1;
-//fun readZ() -> int {
+0; //let z = 1;
+0; //fun readZ() -> int {
 //    z
 //};
-//let z = 2;
-//readZ(); // this should be 1
+0; //let z = 2;
+0; //readZ(); // this should be 1
 
 fun isLess(int x, int y) -> bool {
     x < y

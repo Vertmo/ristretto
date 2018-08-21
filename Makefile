@@ -14,7 +14,7 @@ SAMPLES = int.ris float.ris string.ris bool.ris let.ris binOp.ris boolExpr.ris i
 compile:
 	for folder in $(FOLDERS); do ($(MAKE) --no-print-directory -C $$folder compile); done
 
-tests: compile
+tests: samples
 	$(MAKE) --no-print-directory -C tests tests
 
 samples: compile

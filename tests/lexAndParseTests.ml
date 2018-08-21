@@ -59,17 +59,17 @@ let ifTest ctxt =
 let functionTest ctxt =
   let ast = lexAndParse (open_in "samples/function.ris") in
   assert_equal (Function ("ident",[("s","string")],"string",[(Return (EVar "s"))])) (List.nth ast 0);
-  assert_equal (VoidExpr (Funcall ("ident", [String "Hello"]))) (List.nth ast 1);
+  assert_equal (Print (Funcall ("ident", [String "Hello"]))) (List.nth ast 1);
   assert_equal (Function ("mult",[("x","float");("y","float")],"float",[(Return (BinOp (Mult, (EVar "x"), (EVar "y"))))])) (List.nth ast 4)
 
 let suite = "lexAndParse">:::[
-  "int">::intTest;
-  "float">::floatTest;
-  "bool">::boolTest;
-  "string">::stringTest;
-  "let">::letTest;
-  "binOp">::binOpTest;
-  "boolExpr">::boolExprTest;
-  "if">::ifTest;
-  "function">::functionTest;
-]
+    "int">::intTest;
+    "float">::floatTest;
+    "bool">::boolTest;
+    "string">::stringTest;
+    "let">::letTest;
+    "binOp">::binOpTest;
+    "boolExpr">::boolExprTest;
+    "if">::ifTest;
+    "function">::functionTest;
+  ]
