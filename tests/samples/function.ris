@@ -4,10 +4,10 @@ fun ident(string s) -> string { // Functions act on their arguments and must alw
 print ident("Hello");
 
 fun addOne(int x) -> int { // They can contain a whole program (several statements)
-    fun ident(int x) -> int {
+    fun ident(int x) -> int { // ident is now redefined to [int] -> int inside this scope
         x
     };
-    let y = x + 1;
+    let y = ident(x) + 1;
     y               // Last line of a function is it's return value
 };
 print addOne(3);
@@ -31,9 +31,10 @@ fun isLess(int x, int y) -> bool {
 };
 print isLess(10, 1);
 
-fun isLess(int x, int y, int z) -> bool {
+fun isLess(int x, int y) -> bool { // Functions can be redefined, even with the exact same signature
     y > x
 };
+print isLess(1, 10);
 
 fun fact(int n) -> int { // Functions can be recursive
     if (n==0) then { 1 } else { n*fact(n-1) }

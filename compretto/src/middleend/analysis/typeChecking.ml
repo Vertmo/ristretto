@@ -42,15 +42,19 @@ let rec check_expr_types expr env = match expr with
       if t1 <> t2 then raise (NotTheSameTypeError ("Types "^(string_of_type t1)^" and "^(string_of_type t2)^" are not the same"));
       t1
     )
-  | Funcall (ident, exprs) -> let t = snd (List.find (fun (s,_) -> s = ident) env) in match t with
-    | Fun (inputT, r) ->
-      let n1 = List.length inputT and n2 = List.length exprs in
-      if n1 <> n2 then raise (UnexpectedTypeError ("Function "^ident^" takes "^(string_of_int n1)^" arguments, but "^(string_of_int n2)^" were given"));
-      List.iter2 (fun it e -> (* Check that the passed expressions are of the right type *)
-          let et = check_expr_types e env in
-          if et <> it then raise (UnexpectedTypeError ("Expected "^(string_of_type it)^", got "^(string_of_type et)))) inputT exprs;
-      r (* Return type *)
-    | t -> raise (UnexpectedTypeError ("Type of "^ident^" should be fun [?] -> ? not "^(string_of_type t)))
+  | Funcall (ident, exprs) -> try
+      let t = snd
+          (List.find
+             (fun (s,t) ->
+                s = ident && (match t with
+                    | Fun (inputT, _) when inputT = (List.map (fun e -> check_expr_types e env) exprs) -> true
+                    | _ -> false))
+             env) in match t with
+      | Fun (inputT, r) -> r
+      | t -> raise (UnexpectedTypeError ("Type of "^ident^" should be fun [?] -> ? not "^(string_of_type t)))
+    with Not_found -> raise (UnexpectedTypeError ("No declared function with name "^ident^" and input type ["^
+                                                  (String.concat ","
+                                                     (List.map (fun e -> string_of_type (check_expr_types e env)) exprs))^"]"))
 
 (** Type checking of statement *)
 and check_stmt_types stmt env = match stmt with

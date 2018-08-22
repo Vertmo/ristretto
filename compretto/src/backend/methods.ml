@@ -124,17 +124,18 @@ let find_and_add_methods constantPool cpPT cpFT cpCT cpMT kast =
     | KLet (_, ke) -> find_kexpr ke constantPool methods fields cpMT cpFT
     | KReturn ke -> find_kexpr ke constantPool methods fields cpMT cpFT
     | KPrint ke -> find_kexpr ke constantPool methods fields cpMT cpFT
-    | KFunction (ident, args, fv, body, t) -> match t with
+    | KFunction (name, args, fv, body, t) -> match t with
       | Fun (_, r) ->
+        let ident = Printf.sprintf "%s#%s#%i" name (descriptor_of_type t) (List.length cpMT) in
         let (constantPool, methods, fields, cpMT, cpFT) = find_kprogram body constantPool methods fields cpMT cpFT in
         let (constantPool, fields, cpFT) = List.fold_left (fun (constantPool, fields, cpFT) (s, fieldT) ->
-            let name = Printf.sprintf "%s#%s#%s" ident (descriptor_of_type t) s in
-            let (constantPool, f, index) = add_field constantPool name (descriptor_of_type fieldT)
-            in (constantPool, (f::fields), ((name, index)::cpFT)))
+            let fIdent = Printf.sprintf "%s#%s" ident s in
+            let (constantPool, f, index) = add_field constantPool fIdent (descriptor_of_type fieldT)
+            in (constantPool, (f::fields), ((fIdent, index)::cpFT)))
             (constantPool, fields, cpFT) fv in
         let (constantPool, m, indexM) = add_method constantPool ident (descriptor_of_type t)
             (List.concat (List.mapi (fun i (s, fieldT) -> (* Store free variables *)
-                 [GETSTATIC (find_from_table cpFT (Printf.sprintf "%s#%s#%s" ident (descriptor_of_type t) s));
+                 [GETSTATIC (find_from_table cpFT (Printf.sprintf "%s#%s" ident s));
                   (match fieldT with
                    | Int | Bool -> ISTORE (i + List.length args)
                    | Float -> FSTORE (i + List.length args)
@@ -144,11 +145,11 @@ let find_and_add_methods constantPool cpPT cpFT cpCT cpMT kast =
                (compile_program body
                   { cpPT = cpPT; cpFT = cpFT; cpCT = cpCT; cpMT = cpMT;
                     (* add_method always add 4 elements to the constantPool*)
-                    vars = ((ident, (List.length constantPool + 4))::(List.mapi (fun i a -> (a, i)) args))@
+                    vars = (((name^"#"^(descriptor_of_type t)), (List.length constantPool + 4))::(List.mapi (fun i a -> (a, i)) args))@
                            (List.mapi (fun i s -> (s, i + List.length args)) (List.map fst fv));
                   } (Function r) 0)))
             true in
-        (constantPool, m::methods, fields, (kstmt, indexM)::cpMT, cpFT)
+        (constantPool, m::methods, fields, (kstmt, (ident, indexM))::cpMT, cpFT)
       | _ -> invalid_arg "find_kstmt"
 
   and find_kprogram kast constantPool methods fields cpMT cpFT =

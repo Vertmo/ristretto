@@ -8,4 +8,5 @@ print fibo(40);
 fun fibo(int n, int a, int b) -> int {
     if (n == 0) then { a } else { fibo(n-1, b, a+b) }
 };
-fibo(40, 0, 1)
+print fibo(40, 0, 1);
+fibo(6)
