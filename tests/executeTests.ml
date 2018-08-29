@@ -85,6 +85,11 @@ let functionTest ctxt =
                 "720";
                 "============================================="] (cmd_to_list "cd samples; java function")
 
+let loremTest ctxt =
+  assert_equal ["=============================================";
+                "Everything went right !";
+                "============================================="] (cmd_to_list "cd samples; java lorem")
+
 let suite = "execute">:::[
     "int">::intTest;
     "float">::floatTest;
@@ -96,4 +101,5 @@ let suite = "execute">:::[
     "print">::printTest;
     "if">::ifTest;
     "function">::functionTest;
+    "lorem">::loremTest;
   ]

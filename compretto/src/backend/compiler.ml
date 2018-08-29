@@ -45,9 +45,8 @@ let get_var_from_env v t vars = (try (match t with
 
 (** Compile a k-expression *)
 let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
-  | KInt i -> [LDC (find_from_table env.cpCT kexpr)]
-  | KFloat i -> [LDC (find_from_table env.cpCT kexpr)]
-  | KString s -> [LDC (find_from_table env.cpCT kexpr)]
+  | KInt _ | KFloat _ | KString _ -> let index = find_from_table env.cpCT kexpr in
+    if index < 255 then [LDC index] else [LDC_W index]
   | KBool b -> if b then [ICONST_1] else [ICONST_0]
   | KEVar (v, t) -> get_var_from_env v t env.vars
   | KCall (s, kes, t) ->

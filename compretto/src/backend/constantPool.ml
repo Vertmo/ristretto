@@ -196,7 +196,7 @@ let add_kast_constants constantPool kast =
 (** Print size of the constant pool *)
 let print_constant_pool_count file constantPool =
   let len = (List.length constantPool + 1) in
-  if len > 255 then raise (Failure "Constant pool too big !");
+  if len > 65535 then raise (Failure "Constant pool too big !");
   Utils.print_u2 file (Utils.u2_of_int len)
 
 (** Print one info *)

@@ -16,6 +16,7 @@ type opcode =
   | ICONST_0
   | ICONST_1
   | LDC of int
+  | LDC_W of int
   | ILOAD of int
   | FLOAD of int
   | ALOAD of int
@@ -63,12 +64,14 @@ type opcode =
   | INVOKEVIRTUAL of int
   | INVOKESPECIAL of int
   | INVOKESTATIC of int
+  | WIDE of opcode
 
 (** Java instruction number *)
-let code oc = match oc with
+let rec code oc = match oc with
   | ICONST_0 -> [3]
   | ICONST_1 -> [4]
   | LDC i -> [18; i]
+  | LDC_W i -> 19::(u2_of_int i)
   | ILOAD i -> [21; i]
   | FLOAD i -> [23; i]
   | ALOAD i -> [25; i]
@@ -116,6 +119,9 @@ let code oc = match oc with
   | INVOKEVIRTUAL i -> 182::(u2_of_int i)
   | INVOKESPECIAL i -> 183::(u2_of_int i)
   | INVOKESTATIC i -> 184::(u2_of_int i)
+  | WIDE oc -> let coc = (code oc) in match coc with
+    | [co; index] -> 196::co::(u2_of_int index)
+    | _ -> raise (Failure "Unexpected opcode for wide instruction")
 
 (** Number of bytes of a segment of bytecode *)
 let bytecode_length opcs = (List.length (List.concat (List.map code opcs)))
