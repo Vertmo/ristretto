@@ -67,6 +67,7 @@ expr:
   | FLOAT { Ast.Float $1 }
   | STRING { Ast.String $1 }
   | BOOL { Ast.Bool $1 }
+  | LPAREN RPAREN { Ast.Unit }
   | IDENT { Ast.EVar $1 }
 
   | LPAREN expr RPAREN { $2 }

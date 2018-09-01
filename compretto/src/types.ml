@@ -10,7 +10,7 @@
 
 (** Types allowed in the language *)
 
-type types = Int | Float | String | Bool | Fun of types list * types
+type types = Int | Float | String | Bool | Fun of types list * types | Unit
 
 let allTypes = [Int; Float; String; Bool]
 
@@ -21,6 +21,7 @@ let rec string_of_type t = match t with
   | String -> "string"
   | Bool -> "bool"
   | Fun (a, r) -> "fun "^(string_of_types a)^" -> "^(string_of_type r)
+  | Unit -> "unit"
 
 (** List of types to string *)
 and string_of_types l =
@@ -37,6 +38,7 @@ let type_of_string s = match s with
   | "float" -> Float
   | "string" -> String
   | "bool" -> Bool
+  | "unit" -> Unit
   | _ -> invalid_arg "type_of_string"
 
 (** Get java descriptor for a type *)
@@ -46,3 +48,4 @@ let rec descriptor_of_type t = match t with
   | Bool -> "Z"
   | String -> "Ljava/lang/String;"
   | Fun (a, r) -> "("^(String.concat "" (List.map descriptor_of_type a))^")"^(descriptor_of_type r)
+  | Unit -> "V"

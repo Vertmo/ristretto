@@ -48,6 +48,7 @@ let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
   | KInt _ | KFloat _ | KString _ -> let index = find_from_table env.cpCT kexpr in
     if index < 255 then [LDC index] else [LDC_W index]
   | KBool b -> if b then [ICONST_1] else [ICONST_0]
+  | KUnit -> []
   | KEVar (v, t) -> get_var_from_env v t env.vars
   | KCall (s, kes, t) ->
     if (List.mem s Primitives.all_prims_symbols)
@@ -67,7 +68,10 @@ let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
 
 (** Compile a k-statement *)
 and compile_stmt kstmt env rCtxt bcLen = match kstmt with
-  | KVoidExpr kexpr -> ((compile_expr kexpr env rCtxt bcLen)@[POP], env)
+  | KVoidExpr kexpr -> ((compile_expr kexpr env rCtxt bcLen)@
+                        (match get_type kexpr with
+                         | Unit -> []
+                         | _ -> [POP]), env)
   | KLet (s, kexpr) -> (match get_type kexpr with
       | Int | Bool -> ((compile_expr kexpr env rCtxt bcLen)@[ISTORE (List.length env.vars + 1)], add_var_let env s)
       | Float -> ((compile_expr kexpr env rCtxt bcLen)@[FSTORE (List.length env.vars + 1)], add_var_let env s)
@@ -88,6 +92,7 @@ and compile_stmt kstmt env rCtxt bcLen = match kstmt with
             | Int | Bool -> IRETURN
             | Float -> FRETURN
             | String -> ARETURN
+            | Unit -> RETURN
             | Fun _ -> invalid_arg "compile_stmt"]),
      env)
   | KPrint kexpr -> (compile_print kexpr env rCtxt bcLen, env)
@@ -105,13 +110,14 @@ and compile_stmt kstmt env rCtxt bcLen = match kstmt with
 and compile_print kexpr env rCtxt bcLen =
   (GETSTATIC (find_from_table env.cpFT "out"))::
   (compile_expr kexpr env rCtxt bcLen)@
-  [INVOKEVIRTUAL (find_from_table env.cpPT (match get_type kexpr with
-       | Int -> PrintlnInt
-       | Float -> PrintlnFloat
-       | String -> PrintlnString
-       | Bool -> PrintlnBool
+  (match get_type kexpr with
+       | Int -> [INVOKEVIRTUAL (find_from_table env.cpPT PrintlnInt)]
+       | Float -> [INVOKEVIRTUAL (find_from_table env.cpPT PrintlnFloat)]
+       | String -> [INVOKEVIRTUAL (find_from_table env.cpPT PrintlnString)]
+       | Bool -> [INVOKEVIRTUAL (find_from_table env.cpPT PrintlnBool)]
+       | Unit -> (compile_expr (KString "End of program") env rCtxt bcLen)@[INVOKEVIRTUAL (find_from_table env.cpPT PrintlnString)]
        | _ -> invalid_arg "compile_print"
-     ))]
+     )
 
 and compile_program kast env rCtxt bcLen =
   List.fold_left (fun (b, env) kstmt -> let (newB, env) = (compile_stmt kstmt env rCtxt (bcLen + (bytecode_length b))) in (b@newB, env)) ([], env) kast

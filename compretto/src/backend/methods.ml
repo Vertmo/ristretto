@@ -111,7 +111,7 @@ let add_field constantPool name descriptor =
 
 let find_and_add_methods constantPool cpPT cpFT cpCT cpMT kast =
   let rec find_kexpr kexpr constantPool methods fields cpMT cpFT = match kexpr with
-    | KInt _ | KFloat _ | KString _ | KBool _ -> (constantPool, methods, fields, cpMT, cpFT)
+    | KInt _ | KFloat _ | KString _ | KBool _ | KUnit -> (constantPool, methods, fields, cpMT, cpFT)
     | KEVar _ -> (constantPool, methods, fields, cpMT, cpFT)
     | KCall (_, kes, _) -> List.fold_left (fun (constantPool, methods, fields, cpMT, cpFT) ke ->
         find_kexpr ke constantPool methods fields cpMT cpFT) (constantPool, methods, fields, cpMT, cpFT) kes

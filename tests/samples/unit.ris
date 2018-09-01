@@ -1,0 +1,17 @@
+// There is a unit value and type
+();
+
+// It can of course be returned from function (this is it's most useful carateristic : it's needed from foreign functions)
+fun printTwo(int x, string s) -> unit {
+    print x;
+    print s;
+    ()
+};
+
+printTwo(42, "Hello World");
+
+// It can't be printed..
+// print ();
+
+// ... but it can be returned from the toplevel, in which case "End of program" is printed
+()

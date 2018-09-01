@@ -14,7 +14,7 @@ open Printf
 open Types
 
 (** k-expression type *)
-type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool
+type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool | KUnit
            | KEVar of string * types (** Variable identifier. Contains type of the variable *)
            | KCall of string * kexpr list * types (** Call to a function or primitive. Contains the return type *)
            | KIf of kexpr * kprogram * kprogram * types (** if then else with return type *)
@@ -31,7 +31,7 @@ and kprogram = kstmt list
 
 (** Get type of the kexpr *)
 let rec get_type kexpr = match kexpr with
-  | KInt _ -> Int | KFloat _ -> Float | KString _ -> String | KBool _ -> Bool
+  | KInt _ -> Int | KFloat _ -> Float | KString _ -> String | KBool _ -> Bool | KUnit -> Unit
   | KEVar (_, t) -> t
   | KCall (_, _, t) -> t
   | KIf (_, _, _, t) -> t
@@ -51,6 +51,7 @@ let rec pretty_print_expr kexpr tab_level = match kexpr with
   | KFloat f -> indent tab_level; printf "KFloat[%f]" f
   | KString s -> indent tab_level; printf "KString[%s]" s
   | KBool b -> indent tab_level; printf "KBool[%b]" b
+  | KUnit -> indent tab_level; print_string "KUnit"
   | KEVar (ident, t) -> indent tab_level; printf "KEVar[%s](%s)" ident (string_of_type t)
   | KCall (ident, kes, t) -> indent tab_level; printf "KCall[%s](%s) {\n" ident (string_of_type t);
     List.iter (fun ke -> pretty_print_expr ke (tab_level+1); print_string "\n") kes;

@@ -90,6 +90,13 @@ let loremTest ctxt =
                 "Everything went right !";
                 "============================================="] (cmd_to_list "cd samples; java lorem")
 
+let unitTest ctxt =
+  assert_equal ["42";
+                "Hello World";
+                "=============================================";
+                "End of program";
+                "============================================="] (cmd_to_list "cd samples; java unit")
+
 let suite = "execute">:::[
     "int">::intTest;
     "float">::floatTest;
@@ -102,4 +109,5 @@ let suite = "execute">:::[
     "if">::ifTest;
     "function">::functionTest;
     "lorem">::loremTest;
+    "unit">::unitTest;
   ]

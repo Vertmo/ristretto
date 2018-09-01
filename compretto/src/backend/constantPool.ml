@@ -172,7 +172,7 @@ let add_kast_constants constantPool kast =
     | KInt i -> (constantPool@[make_int_const i], (kexpr, (List.length constantPool + 1))::cpCT)
     | KFloat f -> (constantPool@[make_float_const f], (kexpr, (List.length constantPool + 1))::cpCT)
     | KString s -> (constantPool@(make_string_const s constantPool), (kexpr, (List.length constantPool + 1))::cpCT)
-    | KBool _ | KEVar _ -> (constantPool, cpCT)
+    | KBool _ | KUnit | KEVar _ -> (constantPool, cpCT)
     | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_kexpr ke cp t) (constantPool, cpCT) kes
     | KIf (cond, th, el, _) -> let (constantPool, cpCT) = find_kexpr cond constantPool cpCT in
       let (constantPool, cpCT) = find_kprogram th constantPool cpCT in (* constants in then branch *)
@@ -188,8 +188,9 @@ let add_kast_constants constantPool kast =
   and find_kprogram kast constantPool cpCT =
     List.fold_left (fun (cp, t) kstmt -> find_kstmt kstmt cp t) (constantPool, cpCT) kast in
 
-  (* Adding the ================= string *)
+  (* Adding the ================= and End of program strings *)
   let (constantPool, cpCT) = find_kexpr (KString "=============================================") constantPool [] in
+  let (constantPool, cpCT) = find_kexpr (KString "End of program") constantPool cpCT in
   (* Adding all the constants of the program *)
   find_kprogram kast constantPool cpCT
 

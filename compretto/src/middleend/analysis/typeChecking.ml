@@ -27,6 +27,7 @@ let rec check_expr_types expr env = match expr with
   | Ast.Float _ -> Float
   | Ast.String _ -> String
   | Ast.Bool _ -> Bool
+  | Ast.Unit -> Unit
   | EVar ident -> snd (List.find (fun (i,t) -> i = ident) env)
   | UnOp (p, e) -> let t = check_expr_types e env in
     if not (List.mem t (un_input_types p)) then raise (UnexpectedTypeError ((string_of_type t)^" cannot be used here"))
@@ -61,7 +62,9 @@ and check_stmt_types stmt env = match stmt with
   | VoidExpr e -> ignore (check_expr_types e env); env
   | Let (s, e) -> (s, check_expr_types e env)::env
   | Return e -> ignore (check_expr_types e env); env
-  | Print e -> ignore (check_expr_types e env); env
+  | Print e -> (match (check_expr_types e env) with
+    | Int | Float | String | Bool -> env
+    | t -> raise (UnexpectedTypeError ("type "^(string_of_type t)^" cannot be printed")))
   | Function (ident, args, srt, body) ->
     let tArgs = List.map (fun (s, ts) ->
         (s, (* Name of the argument *)
