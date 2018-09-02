@@ -49,106 +49,84 @@ type field = {
   descriptor: string;
 }
 
+(** Add an Utf8 string to the constantPool *)
+let add_Utf8 constantPool cpUT string =
+  try ignore (find_from_table cpUT string); (constantPool, cpUT) (* String is already in the constant pool *)
+  with Not_found -> (* String is not in the constant pool *)
+    let constantPool = constantPool@[{
+        tag = Utf8; info = (Utils.u2_of_int (String.length string))@(Utils.u1list_of_string string)
+      }] in
+    (constantPool, (string, List.length constantPool)::cpUT)
+
 (** Get constant_pool from ast *)
 let make_constant_pool classname =
+  (* Class name *)
+  let (constantPool, cpUT) = add_Utf8 [] [] classname in
   (* Class_info *)
-  let constantPool = [
-    {tag = Class; info = Utils.u2_of_int 2};
-    (* Class name *)
-    {tag = Utf8;
-     info = (Utils.u2_of_int (String.length classname))@(Utils.u1list_of_string classname)}] in
+  let constantPool = constantPool@[{tag = Class; info = Utils.u2_of_int 1}] in
 
-  (* Super class (Object) *)
-  let objectString = "java/lang/Object" in
-  let constantPool = constantPool@[
-      {tag = Class; info = Utils.u2_of_int 4};
-      (* Class name *)
-      {tag = Utf8;
-       info = (Utils.u2_of_int (String.length objectString))@(Utils.u1list_of_string objectString)}] in
+  (* Super class (Object) name *)
+  let (constantPool, cpUT) = add_Utf8 constantPool cpUT "java/lang/Object" in
+  (* Super class (Object) info *)
+  let constantPool = constantPool@[{tag = Class; info = Utils.u2_of_int 3}] in
 
   (* Code attribute *)
-  let codeString = "Code" in
-  let constantPool = constantPool@[{
-      tag = Utf8;
-      info = (Utils.u2_of_int (String.length codeString))@(Utils.u1list_of_string codeString)
-    }] in
-  constantPool
+  let (constantPool, cpUT) = add_Utf8 constantPool cpUT "Code" in
+  (constantPool, cpUT)
 
 (** Add necessary java primitives to the constant_pool *)
-let add_java_prims constantPool =
-  List.fold_left (fun (cp, t) p ->
-      let newCp = cp@[
-          (* Class *)
-          {
-            tag = Class;
-            info = (u2_of_int (List.length cp + 2));
-          };
-          (* Class name *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length (class_name p)))@(u1list_of_string (class_name p));
-          };
-          (* Name and type *)
-          {
-            tag = NameAndType;
-            info = (u2_of_int (List.length cp + 4))@(u2_of_int (List.length cp + 5));
-          };
-          (* Name *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length (name p)))@(u1list_of_string (name p));
-          };
-          (* Descriptor *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length (descriptor p)))@(u1list_of_string (descriptor p));
-          };
-          (* Methodref *)
-          {
-            tag = Methodref;
-            info = (u2_of_int (List.length cp + 1))@(u2_of_int (List.length cp + 3));
-          }
-        ] in
-      (newCp, (p, List.length newCp)::t))
-    (constantPool, []) allJavaPrims
+let add_java_prims constantPool cpUT =
+  List.fold_left (fun (cp, cpUT, t) p ->
+      (* Class name *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (class_name p) in
+      (* Name *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (name p) in
+      (* Descriptor *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (descriptor p) in
+      (* Class *)
+      let cp = cp@[{
+          tag = Class;
+          info = (u2_of_int (find_from_table cpUT (class_name p)));
+        }] in
+      (* Name and type *)
+      let cp = cp@[{
+          tag = NameAndType;
+          info = (u2_of_int (find_from_table cpUT (name p)))@(u2_of_int (find_from_table cpUT (descriptor p)));
+        }] in
+      (* Methodref *)
+      let cp = cp@[{
+          tag = Methodref;
+          info = (u2_of_int (List.length cp - 1))@(u2_of_int (List.length cp));
+        }] in
+      (cp, cpUT, (p, List.length cp)::t))
+    (constantPool, cpUT, []) allJavaPrims
 
 (** Add necessary fields to the constant_pool *)
-let add_java_fields constantPool =
-  List.fold_left (fun (cp, t) f ->
-      let newCp = cp@[
-          (* Class *)
-          {
-            tag = Class;
-            info = (u2_of_int (List.length cp + 2));
-          };
-          (* Class name *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length f.class_name))@(u1list_of_string (f.class_name));
-          };
-          (* Name and type *)
-          {
-            tag = NameAndType;
-            info = (u2_of_int (List.length cp + 4))@(u2_of_int (List.length cp + 5));
-          };
-          (* Name *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length f.name))@(u1list_of_string f.name);
-          };
-          (* Descriptor *)
-          {
-            tag = Utf8;
-            info = (u2_of_int (String.length f.descriptor))@(u1list_of_string f.descriptor);
-          };
-          (* Fieldref *)
-          {
-            tag = Fieldref;
-            info = (u2_of_int (List.length cp + 1))@(u2_of_int (List.length cp + 3))
-          }
-        ] in
-      (newCp, (f.name, List.length newCp)::t))
-    (constantPool, []) [{name="out";class_name="java/lang/System";descriptor="Ljava/io/PrintStream;";}]
+let add_java_fields constantPool cpUT =
+  List.fold_left (fun (cp, cpUT, t) f ->
+      (* Class name *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (f.class_name) in
+      (* Name *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (f.name) in
+      (* Descriptor *)
+      let (cp, cpUT) = add_Utf8 cp cpUT (f.descriptor) in
+      (* Class *)
+      let cp = cp@[{
+          tag = Class;
+          info = (u2_of_int (find_from_table cpUT (f.class_name)));
+        }] in
+      (* Name and type *)
+      let cp = cp@[{
+          tag = NameAndType;
+          info = (u2_of_int (find_from_table cpUT (f.name)))@(u2_of_int (find_from_table cpUT (f.descriptor)));
+        }] in
+      (* Fieldref *)
+      let cp = cp@[{
+          tag = Fieldref;
+          info = (u2_of_int (List.length cp - 1))@(u2_of_int (List.length cp))
+        }] in
+      (cp, cpUT, (f.name, List.length cp)::t))
+    (constantPool, cpUT, []) [{name="out";class_name="java/lang/System";descriptor="Ljava/io/PrintStream;";}]
 
 let make_int_const i = { tag = Integer; info = u4_of_int i }
 

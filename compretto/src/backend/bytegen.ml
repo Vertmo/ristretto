@@ -11,6 +11,7 @@
 (** Generate bytecode *)
 
 open Utils
+open Opcodes
 open ConstantPool
 open Methods
 open Compiler
@@ -32,13 +33,13 @@ let get_class_name filepath =
 let print_access_flags file =
   List.iter (fun s -> output_byte file (int_of_string s)) ["0x00";"0x01"]
 
-(** Print index of Class_info in constant_pool (always 1) *)
+(** Print index of Class_info in constant_pool (always 2) *)
 let print_this_class file =
-  print_u2 file (Utils.u2_of_int 1)
+  print_u2 file (Utils.u2_of_int 2)
 
-(** Print super_class index in constant_pool (always 3) *)
+(** Print super_class index in constant_pool (always 4) *)
 let print_super_class file =
-  List.iter (output_byte file) (Utils.u2_of_int 3)
+  List.iter (output_byte file) (Utils.u2_of_int 4)
 
 (** Print interfaces_count (always 0) *)
 let print_interfaces_count file =
@@ -56,16 +57,17 @@ let gen_bytecode filename kast =
 
   (* Constant pool*)
   let classname = get_class_name filename in
-  let constantPool = make_constant_pool classname in
-  let (constantPool, cpPrimsTable) = add_java_prims constantPool in
-  let (constantPool, cpFieldsTable) = add_java_fields constantPool in
+  let (constantPool, cpUtf8Table) = make_constant_pool classname in
+  let (constantPool, cpUtf8Table, cpPrimsTable) = add_java_prims constantPool cpUtf8Table in
+  let (constantPool, cpUtf8Table, cpFieldsTable) = add_java_fields constantPool cpUtf8Table in
   let (constantPool, cpConstantsTable) = add_kast_constants constantPool kast in
   let (constantPool, init, _) = add_method constantPool "<init>" "()V"
       [ ALOAD_0;
         INVOKESPECIAL (find_from_table cpPrimsTable JavaPrims.ObjectInit);
         RETURN
       ] false in
-  let (constantPool, methods, fields, cpMethodsTable, cpFieldsTable) = find_and_add_methods constantPool cpPrimsTable cpFieldsTable cpConstantsTable [] kast in
+  let (constantPool, methods, fields, cpMethodsTable, cpFieldsTable) =
+    find_and_add_methods constantPool cpPrimsTable cpFieldsTable cpConstantsTable [] kast in
   let (constantPool, main, _) = add_method constantPool "main" "([Ljava/lang/String;)V"
       (generate_bytecode kast cpPrimsTable cpFieldsTable cpConstantsTable cpMethodsTable) true in
   let methods = init::main::methods in

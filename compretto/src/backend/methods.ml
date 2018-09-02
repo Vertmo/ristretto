@@ -76,7 +76,7 @@ let add_method constantPool name descriptor code isStatic =
     };{
        tag = Methodref;
        (* class_index name_and_type_index *)
-       info = (u2_of_int 1)@(u2_of_int (List.length constantPool + 1));
+       info = (u2_of_int 2)@(u2_of_int (List.length constantPool + 1));
   }] in
   (constantPool, meth, List.length constantPool)
 
@@ -105,7 +105,7 @@ let add_field constantPool name descriptor =
     };{
        tag = Fieldref;
        (* class_index name_and_type_index *)
-       info = (u2_of_int 1)@(u2_of_int (List.length constantPool + 1));
+       info = (u2_of_int 2)@(u2_of_int (List.length constantPool + 1));
   }] in
   (constantPool, field, List.length constantPool)
 
