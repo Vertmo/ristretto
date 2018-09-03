@@ -25,6 +25,7 @@ and kstmt = KVoidExpr of kexpr
           | KReturn of kexpr
           | KPrint of kexpr
           | KFunction of (string * string list * (string * types) list * kprogram * types) (** Name, args, free variables, body and type *)
+          | KForeign of (string * string * string list * string * types) (** Name, fcn of class, field path inside class, method name and type *)
 
 (* k-program (list of k-statement) *)
 and kprogram = kstmt list
@@ -83,6 +84,9 @@ and pretty_print_stmt kstmt tab_level = match kstmt with
     indent (tab_level+1); print_string "["; print_csv_list (List.map (fun (s, t) -> s^" : "^(string_of_type t)) freeVars) print_string; print_endline "] {";
     pretty_print_program body (tab_level + 1);
     indent tab_level; print_string "}";
+  | KForeign (ident, fcn, fieldPath, methodN, t) -> indent tab_level; printf "KForeign[%s](%s) {\n" ident (string_of_type t);
+    indent (tab_level + 1); printf "%s." fcn; List.iter (fun s -> printf "%s." s) fieldPath; print_endline methodN;
+    indent tab_level; print_string "}"
 
 (* Print the k-program *)
 and pretty_print_program kast tab_level =

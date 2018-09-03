@@ -31,6 +31,7 @@ and stmt = VoidExpr of expr (** Expression in the wind *)
          | Return of expr (** Return a value at the end of a function / toplevel *)
          | Print of expr (** Print an expression *)
          | Function of string * (string * string) list * string * program (** Declare a function *)
+         | ForeignFun of string * string list * string * string (** Declare a foreign function *)
 
 (** Program (statement list) *)
 and program = stmt list
@@ -64,6 +65,9 @@ and print_statement stmt = match stmt with
   | Function (ident, args, _, body) -> printf "fun %s(" ident;
     print_csv_list (fst (List.split args)) print_string; print_endline ") {";
     print_program body; print_string "}"
+  | ForeignFun (ident, argsT, retT, fcn) -> printf "foreign fun %s(" ident;
+    print_csv_list argsT print_string; print_string ") -> ";
+    print_string retT; print_string " = "; print_string fcn
 
 (** Print a whole program *)
 and print_program ast = List.iter (fun s -> print_statement s; print_endline ";") ast

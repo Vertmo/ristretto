@@ -12,14 +12,14 @@
   open Ast;;
 %}
 
-%token EOF SEMICOL COMMA RARROW
+%token EOF SEMICOL COMMA DOT RARROW
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
 %token <bool> BOOL
-%token <string> IDENT
+%token <string> IDENT FCN
 %token LPAREN RPAREN LCURLY RCURLY
-%token LET EQUAL FUN
+%token LET EQUAL FUN FOREIGN
 %token IF THEN ELSE
 %token PRINT
 
@@ -40,6 +40,7 @@
 %type <Ast.expr> expr
 %type <(string * string) list> args
 %type <Ast.expr list> exprs
+%type <string list> types
 %%
 program:
   statements EOF { $1 }
@@ -54,8 +55,12 @@ statement:
   | expr { Ast.VoidExpr $1 }
   | LET IDENT EQUAL expr { Ast.Let ($2, $4) }
   | PRINT expr { Print ($2) }
+
   | FUN IDENT LPAREN args RPAREN RARROW IDENT block { Ast.Function ($2, $4, $7, $8) }
   | FUN IDENT LPAREN RPAREN RARROW IDENT block { Ast.Function ($2, [], $6, $7) }
+
+  | FOREIGN FUN IDENT LPAREN types RPAREN RARROW IDENT EQUAL FCN { Ast.ForeignFun ($3, $5, $8, $10) }
+  | FOREIGN FUN IDENT LPAREN RPAREN RARROW IDENT EQUAL FCN { Ast.ForeignFun ($3, [], $7, $9) }
 ;
 
 block:
@@ -103,4 +108,9 @@ args:
 exprs:
   | expr COMMA exprs { $1::$3 }
   | expr { [$1] }
+;
+
+types:
+    IDENT COMMA types { $1::$3 }
+  | IDENT { [$1] }
 ;

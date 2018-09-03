@@ -9,7 +9,7 @@
 ################################################################################
 
 FOLDERS = compretto tests
-SAMPLES = int.ris float.ris string.ris bool.ris let.ris binOp.ris boolExpr.ris if.ris print.ris function.ris fibonnaci.ris lorem.ris unit.ris
+SAMPLES = int.ris float.ris string.ris bool.ris let.ris binOp.ris boolExpr.ris if.ris print.ris function.ris fibonnaci.ris lorem.ris unit.ris foreign.ris
 
 compile:
 	for folder in $(FOLDERS); do ($(MAKE) --no-print-directory -C $$folder compile); done

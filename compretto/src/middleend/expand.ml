@@ -31,18 +31,28 @@ and expand_stmt stmt env = match stmt with
   | Return e -> KReturn (expand_expr e env)
   | Print e -> KPrint (expand_expr e env)
   | Function (ident, args, _, body) ->
-    let t = find_from_table (check_stmt_types stmt env) ident in match t with
-    | Fun (it, rt) -> KFunction (ident, List.map fst args, (* Adding the free variables from the environment *)
-                                 (List.fold_left (fun l (s, t) ->
-                                      if List.exists (fun (s2, _) -> s2 = s) l || (* Unique names *)
-                                         List.exists (fun (s2, _) -> s2 = s) args (* Name not in the args *)
-                                      then l else (s, t)::l) []
-                                    (List.filter (fun (_, t) -> match t with (* We don't put functions there *)
-                                         | Types.Fun _ -> false
-                                         | _ -> true) env)),
-                                 expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
-                                 t)
-    | _ -> invalid_arg "expand_stmt"
+    let t = find_from_table (check_stmt_types stmt env) ident in
+    (match t with
+     | Fun (it, rt) -> KFunction (ident, List.map fst args, (* Adding the free variables from the environment *)
+                                  (List.fold_left (fun l (s, t) ->
+                                       if List.exists (fun (s2, _) -> s2 = s) l || (* Unique names *)
+                                          List.exists (fun (s2, _) -> s2 = s) args (* Name not in the args *)
+                                       then l else (s, t)::l) []
+                                      (List.filter (fun (_, t) -> match t with (* We don't put functions there *)
+                                           | Types.Fun _ -> false
+                                           | _ -> true) env)),
+                                  expand_program body ((ident, t)::(List.combine (fst (List.split args)) it)@env),
+                                  t)
+     | _ -> invalid_arg "expand_stmt")
+  | ForeignFun (ident, _, _, sfcn) ->
+    let t = find_from_table (check_stmt_types stmt env) ident in
+    (match t with
+     | Fun _ -> let fcn = String.split_on_char '.' sfcn in (match fcn with
+         | fcn::q -> (match List.rev q with
+             | methodN::fieldP -> KForeign (ident, fcn, List.rev fieldP, methodN, t)
+             | [] -> raise (Failure ("fcn "^sfcn^" is imcomplete")))
+         | [] -> raise (Failure ("fcn "^sfcn^" is incomplete")))
+     | _ -> invalid_arg "expand_stmt")
 
 (** Expand a program *)
 and expand_program ast env = (* let env = snd (check_program_types ast env) in List.map (fun s -> expand_stmt s env) ast *)

@@ -29,5 +29,6 @@ and check_exist_stmt stmt env = match stmt with
   | Return e -> check_exist_expr e env; env
   | Print e -> check_exist_expr e env; env
   | Function (ident, args, _, body) -> check_exist_program body (ident::((fst (List.split args))@env)); ident::env
+  | ForeignFun (ident, _, _, _) -> ident::env
 
 and check_exist_program ast env = ignore (List.fold_left (fun env stmt -> check_exist_stmt stmt env) env ast)
