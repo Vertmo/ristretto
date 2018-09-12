@@ -24,17 +24,17 @@ let bin_symbol b = match b with
   | Eqeq -> "==" | Neq -> "!=" | Less -> "<" | LessEq -> "<=" | Greater -> ">" | GreaterEq -> ">="
   | And -> "&&" | Or -> "||"
 
+let nums = [Int; Long; Float; Double]
+
 let un_input_types u = match u with
-  | Neg -> [Int; Float] | Not -> [Bool]
+  | Neg -> nums | Not -> [Bool]
 
 let un_output_type u t = match u with
   | Neg -> t | Not -> t
 
-let nums = [Int; Float]
-
 let bin_input_types b = match b with
   | Add -> nums | Sub -> nums | Mult -> nums | Div -> nums
-  | Eqeq -> [Int; Float; Bool] | Neq -> [Int; Float; Bool]
+  | Eqeq -> [Int; Long; Bool] | Neq -> [Int; Long; Bool]
   | Less -> nums | LessEq -> nums | Greater -> nums | GreaterEq -> nums
   | And -> [Bool] | Or -> [Bool]
 

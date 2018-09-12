@@ -1,5 +1,5 @@
 let x = 4; print x; // Print statement
-print 17.0 * 3.0;
+print 17.0f * 3.0f;
 print x > 2;
 print "Hello World"; 
 42 // Last expression is always displayed automatically

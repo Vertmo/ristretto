@@ -1,4 +1,4 @@
-2.25; // Classical float, writen with a .
-1.; // You can have no decimal
--0.5634; // Or even negative float
-42.1865
+2.25f; // Float, writen with a . and a f at the end (to differentiate from double)
+1.f; // You can have no decimal
+-0.5634f; // Or even negative float
+42.1865f

@@ -27,7 +27,9 @@ rule token = parse
   | "->" { RARROW }
 
   | ['0'-'9']+ as num { INT(int_of_string num) }
-  | ['0'-'9']+"."['0'-'9']* as num { FLOAT(float_of_string num)}
+  | ['0'-'9']+'l' as num { LONG(Int64.of_string (String.sub num 0 ((String.length num)-1))) }
+  | ['0'-'9']+"."['0'-'9']*'f' as num { FLOAT(float_of_string (String.sub num 0 ((String.length num)-1))) }
+  | ['0'-'9']+"."['0'-'9']* as num { DOUBLE(float_of_string num) }
   | "\""[^'"' '\n']*"\"" as str { STRING(String.sub str 1 ((String.length str)-2)) }
   | "true" { BOOL(true) } | "false" { BOOL(false) }
 

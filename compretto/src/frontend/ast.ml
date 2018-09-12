@@ -15,7 +15,9 @@ open Primitives
 
 (** Expression *)
 type expr = Int of int (** Primitive integer *)
+          | Long of int64 (** Long integer *)
           | Float of float (** Primitive floating number *)
+          | Double of float (** 64bit precision *)
           | String of string (** Primitive string *)
           | Bool of bool (** Primitive boolean *)
           | Unit (** Unit value *)
@@ -44,7 +46,9 @@ let rec print_csv_list l printFun = match l with
 (** Print an expression *)
 let rec print_expression expr = match expr with
   | Int i -> print_int i
-  | Float f -> print_float f
+  | Long l -> print_string ((Int64.to_string l)^"l")
+  | Float f -> print_float f; print_string "f"
+  | Double d -> print_float d
   | String s -> Printf.printf "\"%s\"" s
   | Bool b -> if b then print_string "true" else print_string "false"
   | Unit -> print_string "()"

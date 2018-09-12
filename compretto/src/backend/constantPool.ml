@@ -17,6 +17,7 @@ open Opcodes
 
 (** Possible tags *)
 type tag = Class | Fieldref | Methodref | InterfaceMethodref | String | Integer | Float | Long | Double | NameAndType | Utf8 | MethodHandle | MethodType | InvokeDynamic | Module | Package
+         | Ignore (* Added tag to identify entries that shouldn't be printed (after Double or Long entry) *)
 
 let int_of_tag t = match t with
   | Class -> 7
@@ -35,6 +36,7 @@ let int_of_tag t = match t with
   | InvokeDynamic -> 18
   | Module -> 19
   | Package -> 20
+  | Ignore -> 0
 
 (** Information about an entry of the constant pool *)
 type cpinfo = {
@@ -152,7 +154,15 @@ let add_java_fields constantPool =
 
 let make_int_const i = { tag = Integer; info = u4_of_int i }
 
+let make_long_const l = let info = {
+    tag = Long; info = u8_of_int64 l;
+  } in [info; { tag = Ignore; info = [] }]
+
 let make_float_const f = { tag = Float; info = u4_of_float f }
+
+let make_double_const d = let info = {
+    tag = Double; info = u8_of_float d;
+  } in [info; { tag = Ignore; info = [] }]
 
 let make_string_const s constantPool = [
   (* String info *)
@@ -170,7 +180,9 @@ let add_kast_constants constantPool kast =
     if List.exists (fun (e, _) -> e = kexpr) cpCT then (constantPool, cpCT)
     else match kexpr with
     | KInt i -> (constantPool@[make_int_const i], (kexpr, (List.length constantPool + 1))::cpCT)
+    | KLong l -> (constantPool@(make_long_const l), (kexpr, (List.length constantPool + 1))::cpCT)
     | KFloat f -> (constantPool@[make_float_const f], (kexpr, (List.length constantPool + 1))::cpCT)
+    | KDouble d -> (constantPool@(make_double_const d), (kexpr, (List.length constantPool + 1))::cpCT)
     | KString s -> (constantPool@(make_string_const s constantPool), (kexpr, (List.length constantPool + 1))::cpCT)
     | KBool _ | KUnit | KEVar _ -> (constantPool, cpCT)
     | KCall (_, kes,_) -> List.fold_left (fun (cp, t) ke -> find_kexpr ke cp t) (constantPool, cpCT) kes
@@ -202,7 +214,7 @@ let print_constant_pool_count file constantPool =
 
 (** Print one info *)
 let print_cpinfo file cpInfo =
-  output_byte file (int_of_tag cpInfo.tag); List.iter (fun i -> output_byte file i) cpInfo.info
+  if cpInfo.tag <> Ignore then output_byte file (int_of_tag cpInfo.tag); List.iter (fun i -> output_byte file i) cpInfo.info
 
 (** Print the whole constant pool *)
 let print_constant_pool file constantPool =

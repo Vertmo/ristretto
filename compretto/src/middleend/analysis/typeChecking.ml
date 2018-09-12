@@ -24,7 +24,9 @@ let find_from_table cpTable toFind =
 (** Type checking of expression *)
 let rec check_expr_types expr env = match expr with
   | Ast.Int _ -> Int
+  | Ast.Long _ -> Long
   | Ast.Float _ -> Float
+  | Ast.Double _ -> Double
   | Ast.String _ -> String
   | Ast.Bool _ -> Bool
   | Ast.Unit -> Unit
@@ -63,7 +65,7 @@ and check_stmt_types stmt env = match stmt with
   | Let (s, e) -> (s, check_expr_types e env)::env
   | Return e -> ignore (check_expr_types e env); env
   | Print e -> (match (check_expr_types e env) with
-    | Int | Float | String | Bool -> env
+    | Int | Long | Float | Double | String | Bool -> env
     | t -> raise (UnexpectedTypeError ("type "^(string_of_type t)^" cannot be printed")))
   | Function (ident, args, srt, body) ->
     let tArgs = List.map (fun (s, ts) ->
