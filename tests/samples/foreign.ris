@@ -3,11 +3,14 @@ foreign fun abs(int) -> int = java/lang/Math.abs;
 print abs(-3);
 print (17 - abs(4));
 
+foreign fun sin(double) -> double = java/lang/Math.sin;
+print sin(1.6);
+
 // Only static functions can be used (for now object cant be created)
 // Moreover, type is not checked against the actual type of the java function during compilation, so it can cause run-time errors
 
 // Functions found in static fields can also be used
-foreign fun printInt(int) -> unit = java/lang/System.out.print;
-printInt(24); print ""; printInt(42);
+// foreign fun printInt(int) -> unit = java/lang/System.out.print;
+// printInt(24); print ""; printInt(42);
 
 abs(-42)

@@ -124,7 +124,7 @@ let find_and_add_methods constantPool cpPT cpFT cpCT cpMT kast =
     | KLet (_, ke) -> find_kexpr ke constantPool methods fields cpMT cpFT
     | KReturn ke -> find_kexpr ke constantPool methods fields cpMT cpFT
     | KPrint ke -> find_kexpr ke constantPool methods fields cpMT cpFT
-    | KFunction (name, args, fv, body, t) -> match t with
+    | KFunction (name, args, fv, body, t) -> (match t with
       | Fun (_, r) ->
         let ident = Printf.sprintf "%s#%s#%i" name (descriptor_of_type t) (List.length cpMT) in
         let (constantPool, methods, fields, cpMT, cpFT) = find_kprogram body constantPool methods fields cpMT cpFT in
@@ -150,7 +150,10 @@ let find_and_add_methods constantPool cpPT cpFT cpCT cpMT kast =
                   } (Function r) 0)))
             true in
         (constantPool, m::methods, fields, (kstmt, (ident, indexM))::cpMT, cpFT)
-      | _ -> invalid_arg "find_kstmt"
+      | _ -> invalid_arg "find_kstmt")
+    | KForeign (name, className, fPath, methodName, t) ->
+      let (constantPool, _) = add_java_fun constantPool [] className fPath methodName (descriptor_of_type t) in
+      (constantPool, methods, fields, (kstmt, (name, List.length constantPool))::cpMT, cpFT)
 
   and find_kprogram kast constantPool methods fields cpMT cpFT =
     List.fold_left (fun (cp, meths, fields, cpMT, cpFT) kstmt ->

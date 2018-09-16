@@ -76,30 +76,35 @@ let make_constant_pool classname =
   let (constantPool, cpUT) = add_Utf8 constantPool cpUT "Code" in
   (constantPool, cpUT)
 
+(** Add a java function to the constant pool *)
+let add_java_fun constantPool cpUT className fPath methodName descriptor =
+  (* Class name *)
+  let (cp, cpUT) = add_Utf8 constantPool cpUT className in
+  (* Name *)
+  let (cp, cpUT) = add_Utf8 cp cpUT methodName in
+  (* Descriptor *)
+  let (cp, cpUT) = add_Utf8 cp cpUT descriptor in
+  (* Class *)
+  let cp = cp@[{
+      tag = Class;
+      info = (u2_of_int (find_from_table cpUT className));
+    }] in
+  (* Name and type *)
+  let cp = cp@[{
+      tag = NameAndType;
+      info = (u2_of_int (find_from_table cpUT methodName))@(u2_of_int (find_from_table cpUT descriptor));
+    }] in
+  (* Methodref *)
+  let cp = cp@[{
+      tag = Methodref;
+      info = (u2_of_int (List.length cp - 1))@(u2_of_int (List.length cp));
+    }] in
+  (cp, cpUT)
+
 (** Add necessary java primitives to the constant_pool *)
 let add_java_prims constantPool cpUT =
   List.fold_left (fun (cp, cpUT, t) p ->
-      (* Class name *)
-      let (cp, cpUT) = add_Utf8 cp cpUT (class_name p) in
-      (* Name *)
-      let (cp, cpUT) = add_Utf8 cp cpUT (name p) in
-      (* Descriptor *)
-      let (cp, cpUT) = add_Utf8 cp cpUT (descriptor p) in
-      (* Class *)
-      let cp = cp@[{
-          tag = Class;
-          info = (u2_of_int (find_from_table cpUT (class_name p)));
-        }] in
-      (* Name and type *)
-      let cp = cp@[{
-          tag = NameAndType;
-          info = (u2_of_int (find_from_table cpUT (name p)))@(u2_of_int (find_from_table cpUT (descriptor p)));
-        }] in
-      (* Methodref *)
-      let cp = cp@[{
-          tag = Methodref;
-          info = (u2_of_int (List.length cp - 1))@(u2_of_int (List.length cp));
-        }] in
+      let (cp, cpUT) = add_java_fun cp cpUT (class_name p) [] (name p) (descriptor p) in
       (cp, cpUT, (p, List.length cp)::t))
     (constantPool, cpUT, []) allJavaPrims
 
@@ -174,6 +179,7 @@ let add_kast_constants constantPool kast =
     | KReturn ke -> find_kexpr ke constantPool cpCT
     | KPrint ke -> find_kexpr ke constantPool cpCT
     | KFunction (_, _, _, kast, _) -> find_kprogram kast constantPool cpCT
+    | KForeign _ -> (constantPool, cpCT)
 
   and find_kprogram kast constantPool cpCT =
     List.fold_left (fun (cp, t) kstmt -> find_kstmt kstmt cp t) (constantPool, cpCT) kast in

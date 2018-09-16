@@ -55,13 +55,18 @@ let rec compile_expr kexpr env rCtxt bcLen = match kexpr with
   | KEVar (v, t) -> get_var_from_env v t env.vars
   | KCall (s, kes, t) ->
     if (List.mem s Primitives.all_prims_symbols)
-    then (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@ (* Compile parameters *)
-         (CompilePrims.compile_prim s (get_type (List.hd kes)))
+    then
+      (* Compile parameters *)
+      (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@
+      (* Compile primitive *)
+      (CompilePrims.compile_prim s (get_type (List.hd kes)))
     else
       let descriptor = descriptor_of_type (Fun ((List.map (fun e -> get_type e) kes), t)) in
-      (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@ (* Compile parameters *)
-         [INVOKESTATIC (try find_from_table env.vars (s^"#"^descriptor)
-                         with Not_found -> raise (Failure ("Method not found in vars : "^s^"#"^descriptor)))] (* invoke method *)
+      (* Compile parameters *)
+      (List.fold_left (fun b ke -> b@(compile_expr ke env rCtxt (bcLen + (bytecode_length b)))) [] kes)@
+      (* Call to function *)
+      [INVOKESTATIC (try find_from_table env.vars (s^"#"^descriptor)
+                     with Not_found -> raise (Failure ("Method not found in vars : "^s^"#"^descriptor)))] (* invoke method *)
   | KIf (cond, th, el, t) ->
     let thB = fst (compile_program th env If bcLen) in
     let elB = fst (compile_program el env If (bcLen + (bytecode_length thB) + 6)) in
@@ -112,6 +117,10 @@ and compile_stmt kstmt env rCtxt bcLen = match kstmt with
              [PUTSTATIC (try find_from_table env.cpFT (Printf.sprintf "%s#%s" ident s)
                          with Not_found -> raise (Failure ("Field not found in cpFT : "^(Printf.sprintf "%s#%s" ident s))))]) fv) in
     (bc, add_var env (name^"#"^(descriptor_of_type t)) index) (* adding the function to the env was handled previously *)
+  | KForeign (name, _, _, _, t) ->
+    let (ident, index) = (try find_from_table env.cpMT kstmt
+                          with Not_found -> raise (Failure ("Method not found in cpMT : "^name))) in
+    ([], add_var env (name^"#"^(descriptor_of_type t)) index)
 
 (** Compile a KPrint *)
 and compile_print kexpr env rCtxt bcLen =
