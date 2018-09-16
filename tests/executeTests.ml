@@ -97,6 +97,17 @@ let unitTest ctxt =
                 "End of program";
                 "============================================="] (cmd_to_list "cd samples; java unit")
 
+let longTest ctxt =
+  assert_equal ["9223372036854775807";
+                "=============================================";
+                "-9223372036854775807";
+                "============================================="] (cmd_to_list "cd samples; java long")
+
+let doubleTest ctxt =
+  assert_equal ["=============================================";
+                "5.27385767062026";
+                "============================================="] (cmd_to_list "cd samples; java double")
+
 let suite = "execute">:::[
     "int">::intTest;
     "float">::floatTest;
@@ -110,4 +121,6 @@ let suite = "execute">:::[
     "function">::functionTest;
     "lorem">::loremTest;
     "unit">::unitTest;
+    "long">::longTest;
+    "double">::doubleTest;
   ]

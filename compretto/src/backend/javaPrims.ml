@@ -10,19 +10,29 @@
 
 (** Java primitives used by the language *)
 
-type javaPrim = ObjectInit | PrintlnInt | PrintlnFloat | PrintlnString | PrintlnBool
+type javaPrim = ObjectInit | PrintlnInt | PrintlnLong
+              | PrintlnFloat | PrintlnDouble
+              | PrintlnString | PrintlnBool
 
-let allJavaPrims = [ObjectInit;PrintlnInt;PrintlnFloat;PrintlnString;PrintlnBool]
+let allJavaPrims = [ObjectInit;PrintlnInt;PrintlnLong;
+                    PrintlnFloat;PrintlnDouble;
+                    PrintlnString;PrintlnBool]
 
 (** Name of the primitive *)
 let name prim = match prim with
   | ObjectInit -> "<init>"
-  | PrintlnInt | PrintlnFloat | PrintlnString | PrintlnBool -> "println"
+  | PrintlnInt | PrintlnLong
+  | PrintlnFloat | PrintlnDouble
+  | PrintlnString | PrintlnBool -> "println"
 
 let class_name prim = match prim with
   | ObjectInit -> "java/lang/Object"
-  | PrintlnInt | PrintlnFloat | PrintlnString | PrintlnBool -> "java/io/PrintStream"
+  | PrintlnInt | PrintlnLong
+  | PrintlnFloat | PrintlnDouble
+  | PrintlnString | PrintlnBool -> "java/io/PrintStream"
 
 let descriptor prim = match prim with
   | ObjectInit -> "()V"
-  | PrintlnInt -> "(I)V" | PrintlnFloat -> "(F)V" | PrintlnString -> "(Ljava/lang/String;)V" | PrintlnBool -> "(Z)V"
+  | PrintlnInt -> "(I)V" | PrintlnLong -> "(J)V"
+  | PrintlnFloat -> "(F)V" | PrintlnDouble -> "(D)V"
+  | PrintlnString -> "(Ljava/lang/String;)V" | PrintlnBool -> "(Z)V"

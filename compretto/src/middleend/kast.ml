@@ -14,7 +14,7 @@ open Printf
 open Types
 
 (** k-expression type *)
-type kexpr = KInt of int | KFloat of float | KString of string | KBool of bool | KUnit
+type kexpr = KInt of int | KLong of int64 | KFloat of float | KDouble of float | KString of string | KBool of bool | KUnit
            | KEVar of string * types (** Variable identifier. Contains type of the variable *)
            | KCall of string * kexpr list * types (** Call to a function or primitive. Contains the return type *)
            | KIf of kexpr * kprogram * kprogram * types (** if then else with return type *)
@@ -31,7 +31,7 @@ and kprogram = kstmt list
 
 (** Get type of the kexpr *)
 let rec get_type kexpr = match kexpr with
-  | KInt _ -> Int | KFloat _ -> Float | KString _ -> String | KBool _ -> Bool | KUnit -> Unit
+  | KInt _ -> Int | KLong _ -> Long | KFloat _ -> Float | KDouble _ -> Double | KString _ -> String | KBool _ -> Bool | KUnit -> Unit
   | KEVar (_, t) -> t
   | KCall (_, _, t) -> t
   | KIf (_, _, _, t) -> t
@@ -48,7 +48,9 @@ let rec print_csv_list l printFun = match l with
 (** Print a k-expression *)
 let rec pretty_print_expr kexpr tab_level = match kexpr with
   | KInt i -> indent tab_level; printf "KInt[%d]" i
+  | KLong l -> indent tab_level; printf "KLong[%s]" (Int64.to_string l)
   | KFloat f -> indent tab_level; printf "KFloat[%f]" f
+  | KDouble d -> indent tab_level; printf "KDouble[%f]" d
   | KString s -> indent tab_level; printf "KString[%s]" s
   | KBool b -> indent tab_level; printf "KBool[%b]" b
   | KUnit -> indent tab_level; print_string "KUnit"

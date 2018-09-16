@@ -2,8 +2,8 @@
 3 - 1;
 let x = 2;
 x + 1;
-4.5 * 17.1; // You can only use a binary operator on two values of the same type
-18.2 + -(14.5);
+4.5f * 17.1f; // You can only use a binary operator on two values of the same type
+18.2f + -(14.5f);
 5 + 15 / 5;
 (5 + 15) / 5;
 let x = 12; let y = 3; let z = 3;

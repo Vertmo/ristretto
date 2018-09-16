@@ -14,7 +14,9 @@
 
 %token EOF SEMICOL COMMA RARROW
 %token <int> INT
+%token <int64> LONG
 %token <float> FLOAT
+%token <float> DOUBLE
 %token <string> STRING
 %token <bool> BOOL
 %token <string> IDENT
@@ -64,7 +66,9 @@ block:
 
 expr:
   | INT { Ast.Int $1 }
+  | LONG { Ast.Long $1 }
   | FLOAT { Ast.Float $1 }
+  | DOUBLE { Ast.Double $1 }
   | STRING { Ast.String $1 }
   | BOOL { Ast.Bool $1 }
   | LPAREN RPAREN { Ast.Unit }
