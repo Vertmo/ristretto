@@ -78,6 +78,12 @@ and check_stmt_types stmt env = match stmt with
     let crt = fst (check_program_types body ((ident, funType)::(tArgs@env))) in (* Check that the args are used correctly inside the body *)
     if crt <> rt then raise (UnexpectedTypeError (sprintf "Return type of function %s should be %s not %s" ident (string_of_type rt) (string_of_type crt)));
     (ident, funType)::env
+  | ForeignFun (ident, argsT, retT, _) ->
+    let tArgs = List.map (fun s -> try type_of_string s
+                           with Invalid_argument _ -> raise (UnexpectedTypeError (s^" is not a type"))) argsT in
+    let rt = try type_of_string retT
+      with Invalid_argument _ -> raise (UnexpectedTypeError (retT^" is not a type")) in
+    (ident, Fun (tArgs, rt))::env
 
 and check_program_types ast env =
   let env = List.fold_left (fun env stmt -> check_stmt_types stmt env) env ast in
@@ -108,10 +114,11 @@ let rec print_statement_with_types stmt env = match stmt with
   | Function (ident, args, _, b) ->
       let t = find_from_table env ident in
       let args = fst (List.split args) in
-      match t with
-      | Fun (i, r) -> (printf "fun %s" ident; print_args_with_types args i; printf " -> %s {\n" (string_of_type r);
-                       print_program_with_types b ((List.combine args i)@env); print_string "}")
-      | _ -> raise (UnexpectedTypeError ("Type of "^ident^" should be fun [?] -> ? not "^(string_of_type t)))
+      (match t with
+       | Fun (i, r) -> (printf "fun %s" ident; print_args_with_types args i; printf " -> %s {\n" (string_of_type r);
+                        print_program_with_types b ((List.combine args i)@env); print_string "}")
+       | _ -> raise (UnexpectedTypeError ("Type of "^ident^" should be fun [?] -> ? not "^(string_of_type t))))
+  | ForeignFun _ -> print_statement stmt
 
 and print_program_with_types ast env =
   ignore (List.fold_left (fun env stmt -> let env = check_stmt_types stmt env in

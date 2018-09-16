@@ -21,7 +21,7 @@ rule token = parse
   | "//"[^ '\n']* { token lexbuf } (* Single line comments *)
   | "/*" { comment lexbuf } (* Start of a multi-line comment *)
 
-  | ";" { SEMICOL } | "," { COMMA }
+  | ";" { SEMICOL } | "," { COMMA } | "." { DOT }
   | "(" { LPAREN } | ")" { RPAREN }
   | "{" { LCURLY } | "}" { RCURLY }
   | "->" { RARROW }
@@ -37,10 +37,11 @@ rule token = parse
   | "==" { EQEQ } | "!=" { NEQ } | "<" { LESS } | "<=" { LESSEQ } | ">" { GREATER } | ">=" { GREATEREQ }
   | "&&" { AND } | "||" { OR } | "not" { NOT }
 
-  | "let" { LET } | "=" { EQUAL } | "fun" { FUN }
+  | "let" { LET } | "=" { EQUAL } | "fun" { FUN } | "foreign" { FOREIGN }
   | "if" { IF } | "then" { THEN } | "else" { ELSE }
   | "print" { PRINT }
   | ['a'-'z''A'-'Z']+ as ident { IDENT(ident) }
+  | ['a'-'z''A'-'Z']+['a'-'z''A'-'Z''.''/']+['a'-'z''A'-'Z']+ as fcn { FCN(fcn) }
 
 and comment = parse
   | "*/" { token lexbuf } (* End of a multi-line comment *)

@@ -108,6 +108,14 @@ let doubleTest ctxt =
                 "5.27385767062026";
                 "============================================="] (cmd_to_list "cd samples; java double")
 
+let foreignTest ctxt =
+  assert_equal ["3";
+                "13";
+                "0.9995736030415051";
+                "=============================================";
+                "42";
+                "============================================="] (cmd_to_list "cd samples; java foreign")
+
 let suite = "execute">:::[
     "int">::intTest;
     "float">::floatTest;
@@ -123,4 +131,5 @@ let suite = "execute">:::[
     "unit">::unitTest;
     "long">::longTest;
     "double">::doubleTest;
+    "foreign">::foreignTest;
   ]
