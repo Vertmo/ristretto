@@ -15,7 +15,7 @@ open Ast
 exception UnboundVarError of string
 
 let rec check_exist_expr expr env = match expr with
-  | Int _ | Float _ | String _ | Bool _ | Unit -> ()
+  | Int _ | Long _ | Float _ | Double _ | String _ | Bool _ | Unit -> ()
   | EVar ident -> if not (List.exists (fun i -> ident = i) env) then raise (UnboundVarError ident)
   | UnOp (_, e) -> check_exist_expr e env
   | BinOp (_, e1, e2) -> check_exist_expr e1 env; check_exist_expr e2 env

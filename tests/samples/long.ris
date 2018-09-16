@@ -1,0 +1,5 @@
+let x = 9223372036854775807l; // Long are ... longer than int
+let y = -9223372036854775807l;
+
+print x;
+y

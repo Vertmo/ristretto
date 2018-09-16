@@ -17,7 +17,7 @@ open Kast
 
 (** Expand to a k-expression *)
 let rec expand_expr expr env = match expr with
-  | Int i -> KInt i | Float f -> KFloat f | Bool b -> KBool b | String s -> KString s | Unit -> KUnit
+  | Int i -> KInt i | Long l -> KLong l | Float f -> KFloat f | Double d -> KDouble d | Bool b -> KBool b | String s -> KString s | Unit -> KUnit
   | EVar ident -> KEVar (ident, (snd (List.find (fun (s, t) -> s = ident) env)))
   | UnOp (p, e) -> KCall ((un_symbol p), [expand_expr e env], (check_expr_types expr env))
   | BinOp (p, e1, e2) -> KCall ((bin_symbol p), [expand_expr e1 env; expand_expr e2 env], (check_expr_types expr env))

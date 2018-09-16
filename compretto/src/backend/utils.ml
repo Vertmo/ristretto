@@ -21,13 +21,24 @@ type u4 = int list (* of size 4 *)
 let u4_of_int i =
   [i asr (3*8); (i asr (2*8)) land 255; (i asr 8) land 255; i land 255]
 
+let u8_of_int64 l =
+  List.map Int64.to_int [Int64.shift_right_logical l (7*8);
+                         Int64.logand (Int64.shift_right_logical l (6*8)) (Int64.of_int 255);
+                         Int64.logand (Int64.shift_right_logical l (5*8)) (Int64.of_int 255);
+                         Int64.logand (Int64.shift_right_logical l (4*8)) (Int64.of_int 255);
+                         Int64.logand (Int64.shift_right_logical l (3*8)) (Int64.of_int 255);
+                         Int64.logand (Int64.shift_right_logical l (2*8)) (Int64.of_int 255);
+                         Int64.logand (Int64.shift_right_logical l (8)) (Int64.of_int 255);
+                         Int64.logand l (Int64.of_int 255)]
+
 let u4_of_float f =
   let i = (Int32.bits_of_float f) in
-  let l = List.map Int32.to_int [Int32.shift_right_logical i (3*8);
+  List.map Int32.to_int [Int32.shift_right_logical i (3*8);
                          Int32.logand (Int32.shift_right_logical i (2*8)) (Int32.of_int 255);
                          Int32.logand (Int32.shift_right_logical i 8) (Int32.of_int 255);
-                                  Int32.logand i (Int32.of_int 255)] in
-  l
+                         Int32.logand i (Int32.of_int 255)]
+
+let u8_of_float f = u8_of_int64 (Int64.bits_of_float f)
 
 let print_u2 file u2 =
   List.iter (output_byte file) u2

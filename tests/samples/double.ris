@@ -1,0 +1,4 @@
+let x = 5.143; // Double are more precise than float
+let y = 27.12345;
+
+y / x

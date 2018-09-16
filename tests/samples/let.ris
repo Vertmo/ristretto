@@ -1,6 +1,6 @@
 let one = 1;
 
-let floating = 17.4;
+let floating = 17.4f;
 
 let hello = "Hello World";
 
